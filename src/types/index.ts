@@ -1,6 +1,7 @@
 export * from './producer';
+export * from './safra';
+export * from './cultura';
 
-// Interfaces de resposta da API
 export interface ApiResponse<T> {
   data: T;
   message: string;

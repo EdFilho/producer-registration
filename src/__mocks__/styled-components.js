@@ -7,12 +7,10 @@ const styled = (tag) => (template) => {
   return Component;
 };
 
-// Mock para createGlobalStyle
 styled.createGlobalStyle = (template) => {
-  return () => null; // Retorna um componente vazio para os testes
+  return () => null;
 };
 
-// Mock para styled components comuns
 styled.div = styled('div');
 styled.h1 = styled('h1');
 styled.h2 = styled('h2');
@@ -31,6 +29,9 @@ styled.select = styled('select');
 styled.textarea = styled('textarea');
 styled.form = styled('form');
 
+const keyframes = () => 'mocked-keyframes';
+
 module.exports = styled;
 module.exports.createGlobalStyle = styled.createGlobalStyle;
+module.exports.keyframes = keyframes;
 module.exports.default = styled;

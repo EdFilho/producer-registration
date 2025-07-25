@@ -129,6 +129,60 @@ export const ProducerInfo = styled.div`
   }
 `;
 
+export const ProducerActions = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+`;
+
+export const ActionButton = styled.button<{
+  variant?: 'danger' | 'primary' | 'secondary';
+}>`
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+
+  ${({ variant = 'primary' }) => {
+    switch (variant) {
+      case 'danger':
+        return `
+          background-color: #dc3545;
+          color: white;
+          &:hover {
+            background-color: #c82333;
+          }
+        `;
+      case 'secondary':
+        return `
+          background-color: #6c757d;
+          color: white;
+          &:hover {
+            background-color: #5a6268;
+          }
+        `;
+      default:
+        return `
+          background-color: #007bff;
+          color: white;
+          &:hover {
+            background-color: #0056b3;
+          }
+        `;
+    }
+  }}
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
 export const LoadingMessage = styled.div`
   text-align: center;
   padding: 40px;

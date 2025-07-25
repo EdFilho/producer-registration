@@ -16,7 +16,6 @@ const initialState: ProducerState = {
   currentProducer: null,
 };
 
-// Async thunks para operações assíncronas
 export const fetchProducers = createAsyncThunk(
   'producers/fetchProducers',
   async () => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ProducerFormData, ESTADOS_BRASILEIROS, CULTURAS_COMUNS } from '../../../types/producer';
+import { ProducerFormData } from '../../../types/producer';
+import { ESTADOS_BRASILEIROS, CULTURAS_COMUNS } from '../../../constants';
 import { validateCPF, validateCNPJ, formatCPF, formatCNPJ } from '../../../utils/validators';
 import {
   FormContainer,
@@ -53,7 +54,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Função para validar CPF/CNPJ
   const validateCpfCnpj = (value: string): boolean => {
     const cleanValue = value.replace(/[^\d]/g, '');
     if (cleanValue.length === 11) {
@@ -64,7 +64,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
     return false;
   };
 
-  // Função para formatar CPF/CNPJ
   const formatCpfCnpj = (value: string): string => {
     const cleanValue = value.replace(/[^\d]/g, '');
     if (cleanValue.length <= 11) {
@@ -74,38 +73,31 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
     }
   };
 
-  // Validação dos campos
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // CPF/CNPJ
     if (!formData.cpfCnpj) {
       newErrors.cpfCnpj = 'CPF ou CNPJ é obrigatório';
     } else if (!validateCpfCnpj(formData.cpfCnpj)) {
       newErrors.cpfCnpj = 'CPF ou CNPJ inválido';
     }
 
-    // Nome do produtor
     if (!formData.nomeProdutor.trim()) {
       newErrors.nomeProdutor = 'Nome do produtor é obrigatório';
     }
 
-    // Nome da fazenda
     if (!formData.nomeFazenda.trim()) {
       newErrors.nomeFazenda = 'Nome da fazenda é obrigatório';
     }
 
-    // Cidade
     if (!formData.cidade.trim()) {
       newErrors.cidade = 'Cidade é obrigatória';
     }
 
-    // Estado
     if (!formData.estado) {
       newErrors.estado = 'Estado é obrigatório';
     }
 
-    // Áreas
     const areaTotal = parseFloat(formData.areaTotalHectares);
     const areaAgricultavel = parseFloat(formData.areaAgricultavelHectares);
     const areaVegetacao = parseFloat(formData.areaVegetacaoHectares);
@@ -122,7 +114,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
       newErrors.areaVegetacaoHectares = 'Área de vegetação deve ser zero ou maior';
     }
 
-    // Validação de soma das áreas
     if (!isNaN(areaTotal) && !isNaN(areaAgricultavel) && !isNaN(areaVegetacao)) {
       if (areaAgricultavel + areaVegetacao > areaTotal) {
         newErrors.areaTotal = 'A soma das áreas agricultável e vegetação não pode exceder a área total';
@@ -133,7 +124,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  // Calcular área restante
   const getAreaRestante = (): number => {
     const areaTotal = parseFloat(formData.areaTotalHectares) || 0;
     const areaAgricultavel = parseFloat(formData.areaAgricultavelHectares) || 0;
@@ -141,7 +131,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
     return areaTotal - areaAgricultavel - areaVegetacao;
   };
 
-  // Handlers
   const handleInputChange = (field: keyof ProducerFormData, value: string) => {
     if (field === 'cpfCnpj') {
       value = formatCpfCnpj(value);
@@ -152,7 +141,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
       [field]: value
     }));
 
-    // Limpar erro do campo quando o usuário começar a digitar
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -172,7 +160,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
     setFormData(prev => ({
       ...prev,
       safras: prev.safras.filter((_, i) => i !== index),
-      // Remover também as culturas desta safra
       culturas: prev.culturas.filter(cultura => cultura.safraAno !== prev.safras[index]?.ano)
     }));
   };
@@ -183,7 +170,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
       const oldAno = newSafras[index]?.ano;
       newSafras[index] = { ...newSafras[index], [field]: value };
 
-      // Se mudou o ano, atualizar as culturas relacionadas
       let newCulturas = prev.culturas;
       if (field === 'ano' && oldAno !== value) {
         newCulturas = prev.culturas.map(cultura => 
@@ -242,7 +228,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
         <FormTitle>Cadastro de Produtor Rural</FormTitle>
         
         <form onSubmit={handleSubmit}>
-          {/* Dados básicos */}
           <FormSection>
             <SectionTitle>Dados do Produtor</SectionTitle>
             
@@ -324,7 +309,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
             </FormRow>
           </FormSection>
 
-          {/* Áreas */}
           <FormSection>
             <SectionTitle>Áreas da Propriedade (em hectares)</SectionTitle>
             
@@ -393,7 +377,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
             )}
           </FormSection>
 
-          {/* Safras */}
           <FormSection>
             <SectionTitle>Safras</SectionTitle>
             <DynamicSection>
@@ -430,7 +413,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
             </DynamicSection>
           </FormSection>
 
-          {/* Culturas */}
           <FormSection>
             <SectionTitle>Culturas Plantadas</SectionTitle>
             <DynamicSection>
@@ -481,7 +463,6 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
             </DynamicSection>
           </FormSection>
 
-          {/* Botões */}
           <ButtonContainer>
             <CancelButton type="button" onClick={onCancel}>
               Cancelar

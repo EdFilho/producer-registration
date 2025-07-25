@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
-import { fetchProducers } from '../../store/producerSlice';
+import { fetchProducers, deleteProducer } from '../../store/producerSlice';
+import { ConfirmModal, NotificationModal } from '../../components/shared';
 import {
   HomeContainer,
   HomeCard,
@@ -19,6 +20,8 @@ import {
   ProducerCard,
   ProducerName,
   ProducerInfo,
+  ProducerActions,
+  ActionButton,
   LoadingMessage,
   ErrorMessage,
 } from './HomePage.styled';
@@ -30,9 +33,84 @@ const HomePage: React.FC = () => {
     (state: RootState) => state.producers
   );
 
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    producerId: string;
+    producerName: string;
+  }>({
+    isOpen: false,
+    producerId: '',
+    producerName: '',
+  });
+
+  const [notification, setNotification] = useState<{
+    isOpen: boolean;
+    type: 'success' | 'error' | 'info' | 'warning';
+    title: string;
+    message: string;
+  }>({
+    isOpen: false,
+    type: 'info',
+    title: '',
+    message: '',
+  });
+
   useEffect(() => {
     dispatch(fetchProducers());
   }, [dispatch]);
+
+  const showNotification = (
+    type: 'success' | 'error' | 'info' | 'warning',
+    title: string,
+    message: string
+  ) => {
+    setNotification({
+      isOpen: true,
+      type,
+      title,
+      message,
+    });
+  };
+
+  const handleDeleteProducer = (id: string, nomeProdutor: string) => {
+    setConfirmModal({
+      isOpen: true,
+      producerId: id,
+      producerName: nomeProdutor,
+    });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await dispatch(deleteProducer(confirmModal.producerId)).unwrap();
+      showNotification(
+        'success',
+        'Produtor Removido',
+        `Produtor <strong>"${confirmModal.producerName}"</strong> foi removido com sucesso!`
+      );
+    } catch (error) {
+      console.error('Erro ao deletar produtor:', error);
+      showNotification(
+        'error',
+        'Erro ao Deletar',
+        `Erro ao deletar o produtor <strong>"${confirmModal.producerName}"</strong>. Tente novamente.`
+      );
+    } finally {
+      setConfirmModal({ isOpen: false, producerId: '', producerName: '' });
+    }
+  };
+
+  const cancelDelete = () => {
+    setConfirmModal({ isOpen: false, producerId: '', producerName: '' });
+  };
+
+  const handleEditProducer = (id: string) => {
+    showNotification(
+      'info',
+      'Funcionalidade em Desenvolvimento',
+      `Editar produtor ID: <strong>${id}</strong><br><br>Esta funcionalidade será implementada em breve!`
+    );
+  };
 
   const renderProducers = () => {
     if (loading) {
@@ -76,42 +154,83 @@ const HomePage: React.FC = () => {
                 </p>
               )}
             </ProducerInfo>
+            <ProducerActions>
+              <ActionButton
+                variant='secondary'
+                onClick={() => handleEditProducer(producer.id)}
+                disabled={loading}
+              >
+                Editar
+              </ActionButton>
+              <ActionButton
+                variant='danger'
+                onClick={() =>
+                  handleDeleteProducer(producer.id, producer.nomeProdutor)
+                }
+                disabled={loading}
+              >
+                Deletar
+              </ActionButton>
+            </ProducerActions>
           </ProducerCard>
         ))}
       </ProducersList>
     );
   };
   return (
-    <HomeContainer>
-      <HomeCard>
-        <HomeTitle>Cadastro de Produtores Rurais</HomeTitle>
-        <HomeDescription>
-          Sistema de cadastro e gerenciamento de produtores rurais
-        </HomeDescription>
+    <>
+      <HomeContainer>
+        <HomeCard>
+          <HomeTitle>Cadastro de Produtores Rurais</HomeTitle>
+          <HomeDescription>
+            Sistema de cadastro e gerenciamento de produtores rurais
+          </HomeDescription>
 
-        <ButtonContainer>
-          <HomeButton onClick={() => navigate('/producer-register')}>
-            Cadastrar Novo Produtor
-          </HomeButton>
-        </ButtonContainer>
+          <ButtonContainer>
+            <HomeButton onClick={() => navigate('/producer-register')}>
+              Cadastrar Novo Produtor
+            </HomeButton>
+          </ButtonContainer>
 
-        <FeaturesSection>
-          <FeaturesTitle>Funcionalidades do Sistema:</FeaturesTitle>
-          <FeaturesList>
-            <li>Cadastro de produtores rurais com validação de CPF/CNPJ</li>
-            <li>Gestão de propriedades e áreas cultiváveis</li>
-            <li>Controle de culturas plantadas</li>
-            <li>Dashboard com estatísticas</li>
-            <li>Validação de dados e consistências</li>
-          </FeaturesList>
-        </FeaturesSection>
+          <FeaturesSection>
+            <FeaturesTitle>Funcionalidades do Sistema:</FeaturesTitle>
+            <FeaturesList>
+              <li>Cadastro de produtores rurais com validação de CPF/CNPJ</li>
+              <li>Gestão de propriedades e áreas cultiváveis</li>
+              <li>Controle de culturas plantadas</li>
+              <li>Dashboard com estatísticas</li>
+              <li>Validação de dados e consistências</li>
+            </FeaturesList>
+          </FeaturesSection>
 
-        <ProducersSection>
-          <ProducersTitle>Produtores Cadastrados</ProducersTitle>
-          {renderProducers()}
-        </ProducersSection>
-      </HomeCard>
-    </HomeContainer>
+          <ProducersSection>
+            <ProducersTitle>Produtores Cadastrados</ProducersTitle>
+            {renderProducers()}
+          </ProducersSection>
+        </HomeCard>
+      </HomeContainer>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title='Confirmar Exclusão'
+        message={`<strong>ATENÇÃO:</strong> Tem certeza que deseja deletar o produtor <strong>"${confirmModal.producerName}"</strong>?
+
+<strong>Esta ação NÃO PODE ser desfeita!</strong>`}
+        variant='danger'
+        confirmText='Sim, Deletar'
+        cancelText='Cancelar'
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+      />
+    </>
   );
 };
 

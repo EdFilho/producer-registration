@@ -9,23 +9,14 @@ export interface ProducerResponse {
 }
 
 export const producerService = {
-  /**
-   * Busca todos os produtores
-   */
   async getAll(): Promise<Producer[]> {
     return apiClient.get<Producer[]>(apiConfig.endpoints.producers);
   },
 
-  /**
-   * Busca um produtor por ID
-   */
   async getById(id: string): Promise<Producer> {
     return apiClient.get<Producer>(`${apiConfig.endpoints.producers}/${id}`);
   },
 
-  /**
-   * Cria um novo produtor
-   */
   async create(producerData: ProducerFormData): Promise<Producer> {
     const producer: Omit<Producer, 'id' | 'createdAt' | 'updatedAt'> = {
       cpfCnpj: producerData.cpfCnpj,
@@ -60,9 +51,6 @@ export const producerService = {
     return apiClient.post<Producer>(apiConfig.endpoints.producers, newProducer);
   },
 
-  /**
-   * Atualiza um produtor existente
-   */
   async update(id: string, producerData: ProducerFormData): Promise<Producer> {
     const producer: Omit<Producer, 'id' | 'createdAt'> = {
       cpfCnpj: producerData.cpfCnpj,
@@ -94,16 +82,10 @@ export const producerService = {
     );
   },
 
-  /**
-   * Remove um produtor
-   */
   async delete(id: string): Promise<void> {
     return apiClient.delete(`${apiConfig.endpoints.producers}/${id}`);
   },
 
-  /**
-   * Busca produtores com paginação e filtros
-   */
   async search(
     params: {
       page?: number;
