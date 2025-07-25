@@ -13,6 +13,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/producer-register" element={<ProducerRegisterPage />} />
+          <Route path="/producer-edit/:id" element={<ProducerRegisterPage />} />
         </Routes>
       </Router>
     </Provider>

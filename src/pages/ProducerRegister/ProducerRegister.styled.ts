@@ -29,3 +29,11 @@ export const ErrorMessage = styled.div`
   text-align: center;
   font-weight: 500;
 `;
+
+export const PageTitle = styled.h1`
+  text-align: center;
+  color: #333;
+  font-size: 2rem;
+  margin: 20px 0 30px;
+  font-weight: 600;
+`;

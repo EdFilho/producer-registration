@@ -1,4 +1,5 @@
 import styled, { createGlobalStyle } from 'styled-components';
+import { theme } from './theme';
 
 export const GlobalStyle = createGlobalStyle`
   * {
@@ -8,18 +9,15 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
+    font-family: ${theme.fonts.primary};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: ${theme.colors.background.default};
+    color: ${theme.colors.text.primary};
   }
 
   code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-      monospace;
+    font-family: ${theme.fonts.monospace};
   }
 
   #root {
@@ -30,54 +28,56 @@ export const GlobalStyle = createGlobalStyle`
 export const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: ${theme.spacing.lg};
 `;
 
 export const Card = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  background: ${theme.colors.background.paper};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.xl};
+  box-shadow: ${theme.shadows.md};
+  margin-bottom: ${theme.spacing.lg};
 `;
 
 export const Title = styled.h1`
-  font-size: 2rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 24px;
+  font-size: ${theme.fontSize['3xl']};
+  font-weight: ${theme.fontWeight.semibold};
+  color: ${theme.colors.text.primary};
+  margin-bottom: ${theme.spacing.xl};
   text-align: center;
 `;
 
 export const Button = styled.button`
-  background-color: #007bff;
+  background-color: ${theme.colors.primary.main};
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
+  border-radius: ${theme.borderRadius.md};
+  padding: ${theme.spacing.sm} ${theme.spacing.lg};
+  font-size: ${theme.fontSize.md};
+  font-weight: ${theme.fontWeight.medium};
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease-in-out;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: ${theme.colors.primary.dark};
+    transform: translateY(-1px);
   }
 
   &:disabled {
-    background-color: #6c757d;
+    background-color: ${theme.colors.grey[400]};
     cursor: not-allowed;
+    transform: none;
   }
 `;
 
 export const LoadingSpinner = styled.div`
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #007bff;
+  border: 4px solid ${theme.colors.grey[200]};
+  border-top: 4px solid ${theme.colors.primary.main};
   border-radius: 50%;
   width: 40px;
   height: 40px;
   animation: spin 1s linear infinite;
-  margin: 20px auto;
+  margin: ${theme.spacing.lg} auto;
 
   @keyframes spin {
     0% {
@@ -90,19 +90,19 @@ export const LoadingSpinner = styled.div`
 `;
 
 export const ErrorMessage = styled.div`
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 12px;
-  border-radius: 4px;
-  border: 1px solid #f5c6cb;
-  margin-bottom: 20px;
+  background-color: ${theme.colors.danger.lighter}20;
+  color: ${theme.colors.danger.dark};
+  padding: ${theme.spacing.sm};
+  border-radius: ${theme.borderRadius.md};
+  border: 1px solid ${theme.colors.danger.light};
+  margin-bottom: ${theme.spacing.lg};
 `;
 
 export const SuccessMessage = styled.div`
-  background-color: #d4edda;
-  color: #155724;
-  padding: 12px;
-  border-radius: 4px;
-  border: 1px solid #c3e6cb;
-  margin-bottom: 20px;
+  background-color: ${theme.colors.success.lighter}20;
+  color: ${theme.colors.success.dark};
+  padding: ${theme.spacing.sm};
+  border-radius: ${theme.borderRadius.md};
+  border: 1px solid ${theme.colors.success.light};
+  margin-bottom: ${theme.spacing.lg};
 `;

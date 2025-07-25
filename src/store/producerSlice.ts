@@ -23,6 +23,13 @@ export const fetchProducers = createAsyncThunk(
   }
 );
 
+export const fetchProducerById = createAsyncThunk(
+  'producers/fetchProducerById',
+  async (id: string) => {
+    return await producerService.getById(id);
+  }
+);
+
 export const createProducer = createAsyncThunk(
   'producers/createProducer',
   async (producerData: ProducerFormData) => {
@@ -55,6 +62,9 @@ const producerSlice = createSlice({
     setCurrentProducer: (state, action: PayloadAction<Producer | null>) => {
       state.currentProducer = action.payload;
     },
+    clearCurrentProducer: (state) => {
+      state.currentProducer = null;
+    },
     clearError: (state) => {
       state.error = null;
     },
@@ -72,6 +82,18 @@ const producerSlice = createSlice({
       .addCase(fetchProducers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Erro ao buscar produtores';
+      })
+      .addCase(fetchProducerById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProducerById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentProducer = action.payload;
+      })
+      .addCase(fetchProducerById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Erro ao buscar produtor';
       })
       .addCase(createProducer.pending, (state) => {
         state.loading = true;
@@ -119,6 +141,10 @@ const producerSlice = createSlice({
   },
 });
 
-export const { addProducer, setCurrentProducer, clearError } =
-  producerSlice.actions;
+export const {
+  addProducer,
+  setCurrentProducer,
+  clearCurrentProducer,
+  clearError,
+} = producerSlice.actions;
 export default producerSlice.reducer;

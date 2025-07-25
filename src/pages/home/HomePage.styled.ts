@@ -1,201 +1,163 @@
 import styled from 'styled-components';
+import { theme } from '../../styles/theme';
 
 export const HomeContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: ${theme.spacing.lg};
 `;
 
 export const HomeCard = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  background: ${theme.colors.background.paper};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.xl};
+  box-shadow: ${theme.shadows.md};
+  margin-bottom: ${theme.spacing.lg};
 `;
 
 export const HomeTitle = styled.h1`
-  font-size: 2rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 24px;
+  font-size: ${theme.fontSize['3xl']};
+  font-weight: ${theme.fontWeight.semibold};
+  color: ${theme.colors.text.primary};
+  margin-bottom: ${theme.spacing.xl};
   text-align: center;
 `;
 
 export const HomeDescription = styled.p`
   text-align: center;
-  margin-bottom: 24px;
-  font-size: 1.1rem;
-  color: #666;
+  margin-bottom: ${theme.spacing.xl};
+  font-size: ${theme.fontSize.lg};
+  color: ${theme.colors.text.secondary};
 `;
 
 export const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: ${theme.spacing.md};
   flex-wrap: wrap;
 `;
 
 export const HomeButton = styled.button`
-  background-color: #007bff;
+  background-color: ${theme.colors.primary.main};
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
+  border-radius: ${theme.borderRadius.md};
+  padding: ${theme.spacing.sm} ${theme.spacing.lg};
+  font-size: ${theme.fontSize.md};
+  font-weight: ${theme.fontWeight.medium};
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease-in-out;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: ${theme.colors.primary.dark};
+    transform: translateY(-1px);
   }
 
   &:disabled {
-    background-color: #6c757d;
+    background-color: ${theme.colors.grey[400]};
     cursor: not-allowed;
+    transform: none;
   }
 `;
 
 export const FeaturesSection = styled.div`
-  margin-top: 40px;
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  margin-top: ${theme.spacing.xxl};
+  padding: ${theme.spacing.lg};
+  background-color: ${theme.colors.grey[50]};
+  border-radius: ${theme.borderRadius.lg};
 `;
 
 export const FeaturesTitle = styled.h3`
-  margin-bottom: 16px;
-  color: #495057;
+  margin-bottom: ${theme.spacing.md};
+  color: ${theme.colors.text.primary};
+  font-size: ${theme.fontSize.xl};
+  font-weight: ${theme.fontWeight.medium};
 `;
 
 export const FeaturesList = styled.ul`
-  color: #6c757d;
+  color: ${theme.colors.text.secondary};
   line-height: 1.6;
 
   li {
-    margin-bottom: 8px;
+    margin-bottom: ${theme.spacing.sm};
   }
 `;
 
 export const ProducersSection = styled.div`
-  margin-top: 40px;
+  margin-top: ${theme.spacing.xxl};
 `;
 
 export const ProducersTitle = styled.h2`
-  font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 20px;
+  font-size: ${theme.fontSize['2xl']};
+  color: ${theme.colors.text.primary};
+  margin-bottom: ${theme.spacing.lg};
   text-align: center;
+  font-weight: ${theme.fontWeight.medium};
 `;
 
 export const ProducersList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
+  gap: ${theme.spacing.lg};
+  margin-top: ${theme.spacing.lg};
 `;
 
 export const ProducerCard = styled.div`
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
+  background: ${theme.colors.background.paper};
+  border: 1px solid ${theme.colors.border.main};
+  border-radius: ${theme.borderRadius.lg};
+  padding: ${theme.spacing.lg};
+  box-shadow: ${theme.shadows.sm};
+  transition: all 0.2s ease-in-out;
 
   &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: ${theme.shadows.md};
+    transform: translateY(-2px);
   }
 `;
 
 export const ProducerName = styled.h3`
-  margin: 0 0 12px 0;
-  color: #007bff;
-  font-size: 1.2rem;
+  margin: 0 0 ${theme.spacing.sm} 0;
+  color: ${theme.colors.primary.main};
+  font-size: ${theme.fontSize.xl};
+  font-weight: ${theme.fontWeight.medium};
 `;
 
 export const ProducerInfo = styled.div`
-  font-size: 0.9rem;
-  color: #666;
+  font-size: ${theme.fontSize.sm};
+  color: ${theme.colors.text.secondary};
   line-height: 1.4;
 
   p {
-    margin: 4px 0;
+    margin: ${theme.spacing.xs} 0;
   }
 
   strong {
-    color: #333;
+    color: ${theme.colors.text.primary};
   }
 `;
 
 export const ProducerActions = styled.div`
   display: flex;
-  gap: 8px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e9ecef;
-`;
-
-export const ActionButton = styled.button<{
-  variant?: 'danger' | 'primary' | 'secondary';
-}>`
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-
-  ${({ variant = 'primary' }) => {
-    switch (variant) {
-      case 'danger':
-        return `
-          background-color: #dc3545;
-          color: white;
-          &:hover {
-            background-color: #c82333;
-          }
-        `;
-      case 'secondary':
-        return `
-          background-color: #6c757d;
-          color: white;
-          &:hover {
-            background-color: #5a6268;
-          }
-        `;
-      default:
-        return `
-          background-color: #007bff;
-          color: white;
-          &:hover {
-            background-color: #0056b3;
-          }
-        `;
-    }
-  }}
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+  gap: ${theme.spacing.sm};
+  margin-top: ${theme.spacing.md};
+  padding-top: ${theme.spacing.md};
+  border-top: 1px solid ${theme.colors.border.main};
 `;
 
 export const LoadingMessage = styled.div`
   text-align: center;
-  padding: 40px;
-  color: #666;
-  font-size: 1.1rem;
+  padding: ${theme.spacing.xxl};
+  color: ${theme.colors.text.secondary};
+  font-size: ${theme.fontSize.lg};
 `;
 
 export const ErrorMessage = styled.div`
   text-align: center;
-  padding: 20px;
-  color: #dc3545;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
-  margin: 20px 0;
+  padding: ${theme.spacing.lg};
+  color: ${theme.colors.danger.dark};
+  background-color: ${theme.colors.danger.lighter}20;
+  border: 1px solid ${theme.colors.danger.light};
+  border-radius: ${theme.borderRadius.md};
+  margin: ${theme.spacing.lg} 0;
 `;

@@ -75,7 +75,6 @@
       "updatedAt": "2025-07-24T11:00:00.000Z"
     },
     {
-      "id": "51c4",
       "cpfCnpj": "987.654.321-00",
       "nomeProdutor": "Pedro Costa",
       "nomeFazenda": "Fazenda Esperança",
@@ -83,21 +82,23 @@
       "estado": "SP",
       "areaTotalHectares": 750,
       "areaAgricultavelHectares": 600,
-      "areaVegetacaoHectares": 150,
+      "areaVegetacaoHectares": 130,
       "safras": [
         {
-          "id": "s4",
+          "id": "17534424544390.11264698312289345",
           "ano": 2024,
           "nome": "Safra 2024"
         }
       ],
       "culturas": [
         {
-          "id": "c6",
+          "id": "17534424544390.37055905313381843",
           "nome": "Algodão",
           "safraId": "2024"
         }
-      ]
+      ],
+      "updatedAt": "2025-07-25T11:20:54.439Z",
+      "id": "51c4"
     }
   ]
 }

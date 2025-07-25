@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ProducerFormData } from '../../../types/producer';
 import { ESTADOS_BRASILEIROS, CULTURAS_COMUNS } from '../../../constants';
 import { validateCPF, validateCNPJ, formatCPF, formatCNPJ } from '../../../utils/validators';
+import { ActionButton } from '../../shared';
 import {
   FormContainer,
   FormCard,
@@ -16,11 +17,7 @@ import {
   ErrorMessage,
   DynamicSection,
   DynamicItem,
-  RemoveButton,
-  AddButton,
   ButtonContainer,
-  SubmitButton,
-  CancelButton,
   AreaInfo,
   AreaWarning
 } from './ProducerForm.styled';
@@ -30,13 +27,15 @@ interface ProducerFormProps {
   onCancel: () => void;
   initialData?: Partial<ProducerFormData>;
   isLoading?: boolean;
+  isEditMode?: boolean;
 }
 
 const ProducerForm: React.FC<ProducerFormProps> = ({
   onSubmit,
   onCancel,
   initialData,
-  isLoading = false
+  isLoading = false,
+  isEditMode = false
 }) => {
   const [formData, setFormData] = useState<ProducerFormData>({
     cpfCnpj: '',
@@ -53,6 +52,24 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        cpfCnpj: '',
+        nomeProdutor: '',
+        nomeFazenda: '',
+        cidade: '',
+        estado: '',
+        areaTotalHectares: '',
+        areaAgricultavelHectares: '',
+        areaVegetacaoHectares: '',
+        safras: [],
+        culturas: [],
+        ...initialData
+      });
+    }
+  }, [initialData]);
 
   const validateCpfCnpj = (value: string): boolean => {
     const cleanValue = value.replace(/[^\d]/g, '');
@@ -402,14 +419,24 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
                       placeholder="Safra 2023"
                     />
                   </FormGroup>
-                  <RemoveButton type="button" onClick={() => handleRemoveSafra(index)}>
+                  <ActionButton 
+                    variant="outlined-danger" 
+                    size="small"
+                    type="button" 
+                    onClick={() => handleRemoveSafra(index)}
+                  >
                     Remover
-                  </RemoveButton>
+                  </ActionButton>
                 </DynamicItem>
               ))}
-              <AddButton type="button" onClick={handleAddSafra}>
+              <ActionButton 
+                variant="secondary" 
+                size="small"
+                type="button" 
+                onClick={handleAddSafra}
+              >
                 + Adicionar Safra
-              </AddButton>
+              </ActionButton>
             </DynamicSection>
           </FormSection>
 
@@ -447,14 +474,24 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
                       ))}
                     </Select>
                   </FormGroup>
-                  <RemoveButton type="button" onClick={() => handleRemoveCultura(index)}>
+                  <ActionButton 
+                    variant="outlined-danger" 
+                    size="small"
+                    type="button" 
+                    onClick={() => handleRemoveCultura(index)}
+                  >
                     Remover
-                  </RemoveButton>
+                  </ActionButton>
                 </DynamicItem>
               ))}
-              <AddButton type="button" onClick={handleAddCultura}>
+              <ActionButton 
+                variant="secondary" 
+                size="small"
+                type="button" 
+                onClick={handleAddCultura}
+              >
                 + Adicionar Cultura
-              </AddButton>
+              </ActionButton>
               {formData.safras.length === 0 && (
                 <p style={{ color: '#6c757d', fontStyle: 'italic', marginTop: '8px' }}>
                   Adicione pelo menos uma safra antes de cadastrar culturas.
@@ -464,12 +501,21 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
           </FormSection>
 
           <ButtonContainer>
-            <CancelButton type="button" onClick={onCancel}>
+            <ActionButton 
+              type="button" 
+              variant="outlined-danger" 
+              onClick={onCancel}
+            >
               Cancelar
-            </CancelButton>
-            <SubmitButton type="submit" disabled={isLoading}>
-              {isLoading ? 'Salvando...' : 'Salvar Produtor'}
-            </SubmitButton>
+            </ActionButton>
+            <ActionButton 
+              type="submit" 
+              variant="primary" 
+              disabled={isLoading}
+              loading={isLoading}
+            >
+              {isEditMode ? 'Atualizar Produtor' : 'Salvar Produtor'}
+            </ActionButton>
           </ButtonContainer>
         </form>
       </FormCard>

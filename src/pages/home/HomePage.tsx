@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { fetchProducers, deleteProducer } from '../../store/producerSlice';
-import { ConfirmModal, NotificationModal } from '../../components/shared';
+import { ConfirmModal, NotificationModal, ActionButton } from '../../components/shared';
 import {
   HomeContainer,
   HomeCard,
@@ -21,7 +21,6 @@ import {
   ProducerName,
   ProducerInfo,
   ProducerActions,
-  ActionButton,
   LoadingMessage,
   ErrorMessage,
 } from './HomePage.styled';
@@ -105,11 +104,7 @@ const HomePage: React.FC = () => {
   };
 
   const handleEditProducer = (id: string) => {
-    showNotification(
-      'info',
-      'Funcionalidade em Desenvolvimento',
-      `Editar produtor ID: <strong>${id}</strong><br><br>Esta funcionalidade será implementada em breve!`
-    );
+    navigate(`/producer-edit/${id}`);
   };
 
   const renderProducers = () => {
@@ -163,7 +158,7 @@ const HomePage: React.FC = () => {
                 Editar
               </ActionButton>
               <ActionButton
-                variant='danger'
+                variant='outlined-danger'
                 onClick={() =>
                   handleDeleteProducer(producer.id, producer.nomeProdutor)
                 }
@@ -187,9 +182,9 @@ const HomePage: React.FC = () => {
           </HomeDescription>
 
           <ButtonContainer>
-            <HomeButton onClick={() => navigate('/producer-register')}>
+            <ActionButton variant="primary" onClick={() => navigate('/producer-register')}>
               Cadastrar Novo Produtor
-            </HomeButton>
+            </ActionButton>
           </ButtonContainer>
 
           <FeaturesSection>

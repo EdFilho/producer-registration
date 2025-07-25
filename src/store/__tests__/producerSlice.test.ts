@@ -9,13 +9,14 @@ import producerReducer, {
   clearError,
 } from '../producerSlice';
 import { Producer, ProducerFormData } from '../../types/producer';
+import { RootState } from '../index';
 
 jest.mock('../../services/producerService');
 const mockedProducerService = producerService as jest.Mocked<
   typeof producerService
 >;
 
-type RootState = {
+type TestRootState = {
   producers: {
     producers: Producer[];
     loading: boolean;
@@ -25,7 +26,7 @@ type RootState = {
 };
 
 describe('producerSlice', () => {
-  let store: ReturnType<typeof configureStore>;
+  let store: ReturnType<typeof configureStore<TestRootState>>;
 
   beforeEach(() => {
     store = configureStore({
@@ -67,7 +68,7 @@ describe('producerSlice', () => {
       };
 
       store.dispatch(addProducer(producer));
-      const state = (store.getState() as RootState).producers;
+      const state = (store.getState() as TestRootState).producers;
       expect(state.producers).toHaveLength(1);
       expect(state.producers[0]).toEqual(producer);
     });
@@ -90,19 +91,32 @@ describe('producerSlice', () => {
       };
 
       store.dispatch(setCurrentProducer(producer));
-      const state = (store.getState() as RootState).producers;
+      const state = (store.getState() as TestRootState).producers;
       expect(state.currentProducer).toEqual(producer);
     });
 
     it('should clear error', () => {
-      store.dispatch(
-        fetchProducers.rejected(new Error('Test error'), '', undefined)
-      );
-      expect((store.getState() as RootState).producers.error).not.toBeNull();
+      // First, set an error in the state
+      store = configureStore({
+        reducer: {
+          producers: producerReducer,
+        },
+        preloadedState: {
+          producers: {
+            producers: [],
+            loading: false,
+            error: 'Some error message',
+            currentProducer: null,
+          },
+        },
+      });
+
+      const state = (store.getState() as TestRootState).producers;
+      expect(state.error).toBe('Some error message');
 
       store.dispatch(clearError());
-      const state = (store.getState() as RootState).producers;
-      expect(state.error).toBeNull();
+      const stateAfterClear = (store.getState() as TestRootState).producers;
+      expect(stateAfterClear.error).toBeNull();
     });
   });
 
@@ -129,8 +143,8 @@ describe('producerSlice', () => {
 
         mockedProducerService.getAll.mockResolvedValue(mockProducers);
 
-        await store.dispatch(fetchProducers());
-        const state = store.getState().producers;
+        await store.dispatch(fetchProducers() as any);
+        const state = (store.getState() as TestRootState).producers;
 
         expect(state.loading).toBe(false);
         expect(state.producers).toEqual(mockProducers);
@@ -141,8 +155,8 @@ describe('producerSlice', () => {
         const errorMessage = 'Failed to fetch';
         mockedProducerService.getAll.mockRejectedValue(new Error(errorMessage));
 
-        await store.dispatch(fetchProducers());
-        const state = store.getState().producers;
+        await store.dispatch(fetchProducers() as any);
+        const state = (store.getState() as TestRootState).producers;
 
         expect(state.loading).toBe(false);
         expect(state.producers).toEqual([]);
@@ -179,8 +193,8 @@ describe('producerSlice', () => {
 
         mockedProducerService.create.mockResolvedValue(mockCreatedProducer);
 
-        await store.dispatch(createProducer(formData));
-        const state = store.getState().producers;
+        await store.dispatch(createProducer(formData) as any);
+        const state = (store.getState() as TestRootState).producers;
 
         expect(state.loading).toBe(false);
         expect(state.producers).toHaveLength(1);
@@ -208,12 +222,14 @@ describe('producerSlice', () => {
         };
 
         store.dispatch(addProducer(producer));
-        expect(store.getState().producers.producers).toHaveLength(1);
+        expect(
+          (store.getState() as TestRootState).producers.producers
+        ).toHaveLength(1);
 
         mockedProducerService.delete.mockResolvedValue();
 
-        await store.dispatch(deleteProducer('1'));
-        const state = store.getState().producers;
+        await store.dispatch(deleteProducer('1') as any);
+        const state = (store.getState() as TestRootState).producers;
 
         expect(state.loading).toBe(false);
         expect(state.producers).toHaveLength(0);
@@ -225,8 +241,8 @@ describe('producerSlice', () => {
         const errorMessage = 'Failed to delete';
         mockedProducerService.delete.mockRejectedValue(new Error(errorMessage));
 
-        await store.dispatch(deleteProducer('1'));
-        const state = store.getState().producers;
+        await store.dispatch(deleteProducer('1') as any);
+        const state = (store.getState() as TestRootState).producers;
 
         expect(state.loading).toBe(false);
         expect(state.error).toBe(errorMessage);
