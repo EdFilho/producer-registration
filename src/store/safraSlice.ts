@@ -16,6 +16,10 @@ const initialState: SafraState = {
   currentSafra: null,
 };
 
+export const fetchSafras = createAsyncThunk('safras/fetchAll', async () => {
+  return await safraService.getAll();
+});
+
 export const fetchSafrasByPropriedade = createAsyncThunk(
   'safras/fetchByPropriedade',
   async (propriedadeId: string) => {
@@ -68,6 +72,19 @@ const safraSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetch all safras
+      .addCase(fetchSafras.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSafras.fulfilled, (state, action) => {
+        state.loading = false;
+        state.safras = action.payload;
+      })
+      .addCase(fetchSafras.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Erro ao buscar safras';
+      })
       // Fetch safras by propriedade
       .addCase(fetchSafrasByPropriedade.pending, (state) => {
         state.loading = true;

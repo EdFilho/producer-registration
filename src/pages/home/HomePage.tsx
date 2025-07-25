@@ -4,7 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { fetchProducers, deleteProducer } from '../../store/producerSlice';
 import { fetchPropriedades } from '../../store/propriedadeRuralSlice';
+import { fetchSafras } from '../../store/safraSlice';
 import { ConfirmModal, NotificationModal, ActionButton } from '../../components/shared';
+import { PieChart } from '@mui/x-charts/PieChart';
 import {
   HomeContainer,
   HomeCard,
@@ -64,6 +66,7 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     dispatch(fetchProducers());
     dispatch(fetchPropriedades());
+    dispatch(fetchSafras());
   }, [dispatch]);
 
   const showNotification = (
@@ -122,6 +125,58 @@ const HomePage: React.FC = () => {
       totalFazendas: fazendas.length,
       fazendas: fazendas.slice(0, 2)
     };
+  };
+
+  // Dados para gráfico de pizza por estado
+  const getEstadosData = () => {
+    const estadosCount = propriedades.reduce((acc, prop) => {
+      acc[prop.estado] = (acc[prop.estado] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(estadosCount).map(([estado, count], index) => ({
+      id: index,
+      value: count,
+      label: estado,
+    }));
+  };
+
+  // Dados para gráfico de pizza por cultura plantada
+  const getCulturasData = () => {
+    const culturasCount = safras.reduce((acc, safra) => {
+      safra.culturasPlantadas.forEach(cultura => {
+        acc[cultura] = (acc[cultura] || 0) + 1;
+      });
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Filtrar apenas culturas que têm pelo menos 1 ocorrência
+    return Object.entries(culturasCount)
+      .filter(([_, count]) => count > 0)
+      .map(([cultura, count], index) => ({
+        id: index,
+        value: count,
+        label: cultura,
+      }));
+  };
+
+  // Dados para gráfico de pizza por uso do solo
+  const getUsoSoloData = () => {
+    const totalAgricultavel = propriedades.reduce((total, prop) => total + prop.areaAgricultavelHectares, 0);
+    const totalVegetacao = propriedades.reduce((total, prop) => total + prop.areaVegetacaoHectares, 0);
+
+    return [
+      {
+        id: 0,
+        value: totalAgricultavel,
+        label: 'Área Agricultável',
+      },
+      {
+        id: 1,
+        value: totalVegetacao,
+        label: 'Área de Vegetação',
+      },
+    ];
   };
 
   const renderProducers = () => {
@@ -229,14 +284,204 @@ const HomePage: React.FC = () => {
           </ButtonContainer>
 
           <FeaturesSection>
-            <FeaturesTitle>Funcionalidades do Sistema:</FeaturesTitle>
-            <FeaturesList>
-              <li>Cadastro de produtores rurais com validação de CPF/CNPJ</li>
-              <li>Gestão de propriedades e áreas cultiváveis</li>
-              <li>Controle de culturas plantadas</li>
-              <li>Dashboard com estatísticas</li>
-              <li>Validação de dados e consistências</li>
-            </FeaturesList>
+            <FeaturesTitle>Estatísticas do Sistema:</FeaturesTitle>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+              gap: '1rem', 
+              marginTop: '1rem' 
+            }}>
+              <div style={{
+                padding: '1.5rem',
+                backgroundColor: '#e3f2fd',
+                borderRadius: '8px',
+                border: '1px solid #2196f3',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1976d2' }}>
+                  {propriedades.length}
+                </div>
+                <div style={{ fontSize: '0.9rem', color: '#424242', marginTop: '0.5rem' }}>
+                  Total de Fazendas Cadastradas
+                </div>
+              </div>
+              
+              <div style={{
+                padding: '1.5rem',
+                backgroundColor: '#e8f5e8',
+                borderRadius: '8px',
+                border: '1px solid #4caf50',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#388e3c' }}>
+                  {propriedades.reduce((total, prop) => total + prop.areaTotalHectares, 0).toLocaleString('pt-BR')}
+                </div>
+                <div style={{ fontSize: '0.9rem', color: '#424242', marginTop: '0.5rem' }}>
+                  Total de Hectares Registrados
+                </div>
+              </div>
+            </div>
+          </FeaturesSection>
+
+          {/* Seção de Gráficos */}
+          <FeaturesSection>
+            <FeaturesTitle>Análises Gráficas:</FeaturesTitle>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+              gap: '2rem', 
+              marginTop: '2rem' 
+            }}>
+              {/* Gráfico por Estado */}
+              <div style={{
+                padding: '1.5rem',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                border: '1px solid #e0e0e0',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}>
+                <h4 style={{ 
+                  margin: '0 0 1rem 0', 
+                  textAlign: 'center', 
+                  color: '#333',
+                  fontSize: '1.1rem'
+                }}>
+                  Distribuição por Estado
+                </h4>
+                {getEstadosData().length > 0 ? (
+                  <PieChart
+                    series={[
+                      {
+                        data: getEstadosData(),
+                        arcLabel: (item) => `${item.value}`,
+                        arcLabelMinAngle: 45,
+                      },
+                    ]}
+                    height={250}
+                    slotProps={{
+                      pieArcLabel: {
+                        style: {
+                          fill: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '14px',
+                        },
+                      },
+                    }}
+                  />
+                ) : (
+                  <div style={{ 
+                    height: '250px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    color: '#666',
+                    fontStyle: 'italic'
+                  }}>
+                    Sem dados para exibir
+                  </div>
+                )}
+              </div>
+
+              {/* Gráfico por Cultura */}
+              <div style={{
+                padding: '1.5rem',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                border: '1px solid #e0e0e0',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}>
+                <h4 style={{ 
+                  margin: '0 0 1rem 0', 
+                  textAlign: 'center', 
+                  color: '#333',
+                  fontSize: '1.1rem'
+                }}>
+                  Culturas Plantadas
+                </h4>
+                {getCulturasData().length > 0 ? (
+                  <PieChart
+                    series={[
+                      {
+                        data: getCulturasData(),
+                        arcLabel: (item) => `${item.value}`,
+                        arcLabelMinAngle: 45,
+                      },
+                    ]}
+                    height={250}
+                    slotProps={{
+                      pieArcLabel: {
+                        style: {
+                          fill: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '14px',
+                        },
+                      },
+                    }}
+                  />
+                ) : (
+                  <div style={{ 
+                    height: '250px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    color: '#666',
+                    fontStyle: 'italic'
+                  }}>
+                    Sem dados para exibir
+                  </div>
+                )}
+              </div>
+
+              {/* Gráfico por Uso do Solo */}
+              <div style={{
+                padding: '1.5rem',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                border: '1px solid #e0e0e0',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}>
+                <h4 style={{ 
+                  margin: '0 0 1rem 0', 
+                  textAlign: 'center', 
+                  color: '#333',
+                  fontSize: '1.1rem'
+                }}>
+                  Uso do Solo (Hectares)
+                </h4>
+                {getUsoSoloData().every(item => item.value > 0) ? (
+                  <PieChart
+                    series={[
+                      {
+                        data: getUsoSoloData(),
+                        arcLabel: (item) => `${item.value.toLocaleString('pt-BR')}`,
+                        arcLabelMinAngle: 45,
+                      },
+                    ]}
+                    height={250}
+                    slotProps={{
+                      pieArcLabel: {
+                        style: {
+                          fill: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '14px',
+                        },
+                      },
+                    }}
+                  />
+                ) : (
+                  <div style={{ 
+                    height: '250px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    color: '#666',
+                    fontStyle: 'italic'
+                  }}>
+                    Sem dados para exibir
+                  </div>
+                )}
+              </div>
+            </div>
           </FeaturesSection>
 
           <ProducersSection>

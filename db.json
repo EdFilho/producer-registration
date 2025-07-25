@@ -13,13 +13,6 @@
       "nomeProdutor": "Maria Santos",
       "createdAt": "2025-07-24T11:00:00.000Z",
       "updatedAt": "2025-07-24T11:00:00.000Z"
-    },
-    {
-      "id": "1753445335752",
-      "cpfCnpj": "113.222.154-48",
-      "nomeProdutor": "Jose Edvanio",
-      "createdAt": "2025-07-25T12:08:55.752Z",
-      "updatedAt": "2025-07-25T12:08:55.752Z"
     }
   ],
   "propriedades-rurais": [
@@ -53,23 +46,11 @@
       "nomeFazenda": "Fazenda Santa Clara",
       "cidade": "Londrina",
       "estado": "PR",
-      "areaTotalHectares": 1500,
-      "areaAgricultavelHectares": 1200,
+      "areaTotalHectares": 1600,
+      "areaAgricultavelHectares": 1300,
       "areaVegetacaoHectares": 300,
       "createdAt": "2025-07-24T11:00:00.000Z",
-      "updatedAt": "2025-07-24T11:00:00.000Z"
-    },
-    {
-      "id": "d240",
-      "produtorId": "1753449440981",
-      "nomeFazenda": "Fazenda Santa Ana",
-      "cidade": "Garanhuns",
-      "estado": "PE",
-      "areaTotalHectares": 500,
-      "areaAgricultavelHectares": 200,
-      "areaVegetacaoHectares": 150,
-      "createdAt": "2025-07-25T13:17:21.054Z",
-      "updatedAt": "2025-07-25T13:17:21.054Z"
+      "updatedAt": "2025-07-25T15:43:52.933Z"
     }
   ],
   "safras": [
