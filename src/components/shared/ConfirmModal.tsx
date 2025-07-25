@@ -61,14 +61,14 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
           <ModalTitle>{title}</ModalTitle>
           <ModalCloseButton onClick={onCancel}>×</ModalCloseButton>
         </ModalHeader>
-        
+
         <ModalBody>
           <ModalIcon variant={variant}>{getIcon()}</ModalIcon>
           <ModalMessage dangerouslySetInnerHTML={{ __html: message }} />
         </ModalBody>
 
         <ModalActions>
-          <ModalButton variant="secondary" onClick={onCancel}>
+          <ModalButton variant='secondary' onClick={onCancel}>
             {cancelText}
           </ModalButton>
           <ModalButton variant={variant} onClick={onConfirm}>

@@ -1,34 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ProducerForm } from '../../components/forms/ProducerForm';
-import { ProducerFormData, Producer } from '../../types/producer';
-import { createProducer, updateProducer, fetchProducerById, clearCurrentProducer } from '../../store/producerSlice';
-import { AppDispatch, RootState } from '../../store';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../../store';
 import {
-  PageContainer,
+  createProducer,
+  updateProducer,
+  fetchProducerById,
+  clearCurrentProducer,
+} from '../../store/producerSlice';
+import { createPropriedade } from '../../store/propriedadeRuralSlice';
+import { createSafra } from '../../store/safraSlice';
+import { Producer, ProducerFormData } from '../../types/producer';
+import { ProducerForm } from '../../components/forms/ProducerForm';
+import {
+  PageContainer as Container,
   PageTitle,
-  SuccessMessage,
-  ErrorMessage
+  ErrorMessage,
 } from './ProducerRegister.styled';
 
 const ProducerRegisterPage: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const { id } = useParams<{ id: string }>();
-  const { currentProducer, loading } = useSelector((state: RootState) => state.producers);
-  
-  const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-
   const isEditMode = Boolean(id);
+
+  const { currentProducer, loading } = useSelector(
+    (state: RootState) => state.producers
+  );
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (isEditMode && id) {
       dispatch(fetchProducerById(id));
     }
-    
+
     return () => {
       dispatch(clearCurrentProducer());
     };
@@ -38,50 +45,74 @@ const ProducerRegisterPage: React.FC = () => {
     return {
       cpfCnpj: producer.cpfCnpj,
       nomeProdutor: producer.nomeProdutor,
-      nomeFazenda: producer.nomeFazenda,
-      cidade: producer.cidade,
-      estado: producer.estado,
-      areaTotalHectares: producer.areaTotalHectares.toString(),
-      areaAgricultavelHectares: producer.areaAgricultavelHectares.toString(),
-      areaVegetacaoHectares: producer.areaVegetacaoHectares.toString(),
-      safras: producer.safras.map(safra => ({
-        ano: safra.ano.toString(),
-        nome: safra.nome
-      })),
-      culturas: producer.culturas.map(cultura => ({
-        nome: cultura.nome,
-        safraAno: cultura.safraId
-      }))
+      fazendas: [],
     };
   };
 
   const handleSubmit = async (formData: ProducerFormData) => {
     setIsLoading(true);
-    setSuccessMessage('');
     setErrorMessage('');
 
     try {
       if (isEditMode && id) {
         await dispatch(updateProducer({ id, data: formData })).unwrap();
-        setSuccessMessage('Produtor atualizado com sucesso!');
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
       } else {
-        await dispatch(createProducer(formData)).unwrap();
-        setSuccessMessage('Produtor cadastrado com sucesso!');
-      }
-      
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
+        const producerResult = await dispatch(
+          createProducer({
+            cpfCnpj: formData.cpfCnpj,
+            nomeProdutor: formData.nomeProdutor,
+            fazendas: [],
+          })
+        ).unwrap();
 
-    } catch (error) {
-      console.error('Erro ao salvar produtor:', error);
+        const produtorId = producerResult.id;
+
+        for (const fazenda of formData.fazendas) {
+          try {
+            const propriedadeResult = await dispatch(
+              createPropriedade({
+                produtorId,
+                nomeFazenda: fazenda.nomeFazenda,
+                cidade: fazenda.cidade,
+                estado: fazenda.estado,
+                areaTotalHectares: fazenda.areaTotalHectares,
+                areaAgricultavelHectares: fazenda.areaAgricultavelHectares,
+                areaVegetacaoHectares: fazenda.areaVegetacaoHectares,
+              })
+            ).unwrap();
+
+            const propriedadeId = propriedadeResult.id;
+
+            for (const safra of fazenda.safras) {
+              if (safra.ano && safra.nome && safra.culturasPlantadas.length > 0) {
+                await dispatch(
+                  createSafra({
+                    propriedadeRuralId: propriedadeId,
+                    ano: parseInt(safra.ano),
+                    nome: safra.nome,
+                    culturasPlantadas: safra.culturasPlantadas,
+                  })
+                ).unwrap();
+              }
+            }
+          } catch (error) {
+            console.error('Erro ao criar fazenda:', error);
+          }
+        }
+      }
+    } catch (error: any) {
+      console.error('Erro no cadastro:', error);
       setErrorMessage(
-        isEditMode 
-          ? 'Erro ao atualizar produtor. Tente novamente.' 
-          : 'Erro ao cadastrar produtor. Tente novamente.'
+        isEditMode
+          ? 'Erro ao atualizar o produtor. Tente novamente.'
+          : 'Erro ao cadastrar o produtor. Tente novamente.'
       );
     } finally {
       setIsLoading(false);
+      navigate('/');
     }
   };
 
@@ -90,31 +121,25 @@ const ProducerRegisterPage: React.FC = () => {
   };
 
   return (
-    <PageContainer>
+    <Container>
       <PageTitle>
-        {isEditMode ? 'Editar Produtor Rural' : 'Cadastrar Novo Produtor Rural'}
+        {isEditMode ? 'Editar Produtor' : 'Cadastrar Novo Produtor'}
       </PageTitle>
 
-      {successMessage && (
-        <SuccessMessage>
-          {successMessage}
-        </SuccessMessage>
-      )}
-
-      {errorMessage && (
-        <ErrorMessage>
-          {errorMessage}
-        </ErrorMessage>
-      )}
+      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
 
       <ProducerForm
+        initialData={
+          currentProducer
+            ? convertProducerToFormData(currentProducer)
+            : undefined
+        }
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isLoading={isLoading || loading}
         isEditMode={isEditMode}
-        initialData={isEditMode && currentProducer ? convertProducerToFormData(currentProducer) : undefined}
       />
-    </PageContainer>
+    </Container>
   );
 };
 

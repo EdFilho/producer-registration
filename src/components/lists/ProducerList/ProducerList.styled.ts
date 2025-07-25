@@ -42,6 +42,13 @@ export const ProducerInfo = styled.div`
   }
 `;
 
+export const ProducerActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+`;
+
 export const LoadingMessage = styled.div`
   text-align: center;
   padding: 2rem;

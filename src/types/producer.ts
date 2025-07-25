@@ -1,25 +1,16 @@
 import { Safra } from './safra';
 import { Cultura } from './cultura';
+import { PropriedadeRuralFormData } from './propriedadeRural';
 
 export interface Producer {
   id: string;
   cpfCnpj: string;
   nomeProdutor: string;
-  nomeFazenda: string;
-  cidade: string;
-  estado: string;
-  areaTotalHectares: number;
-  areaAgricultavelHectares: number;
-  areaVegetacaoHectares: number;
-  safras: Safra[];
-  culturas: Cultura[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface ProducerFormData {
-  cpfCnpj: string;
-  nomeProdutor: string;
+export interface FazendaWithSafras {
   nomeFazenda: string;
   cidade: string;
   estado: string;
@@ -29,9 +20,12 @@ export interface ProducerFormData {
   safras: Array<{
     ano: string;
     nome: string;
+    culturasPlantadas: string[];
   }>;
-  culturas: Array<{
-    nome: string;
-    safraAno: string;
-  }>;
+}
+
+export interface ProducerFormData {
+  cpfCnpj: string;
+  nomeProdutor: string;
+  fazendas: FazendaWithSafras[];
 }

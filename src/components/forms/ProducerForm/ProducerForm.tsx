@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ProducerFormData } from '../../../types/producer';
-import { ESTADOS_BRASILEIROS, CULTURAS_COMUNS } from '../../../constants';
+import { Producer, ProducerFormData, FazendaWithSafras } from '../../../types/producer';
 import { validateCPF, validateCNPJ, formatCPF, formatCNPJ } from '../../../utils/validators';
 import { ActionButton } from '../../shared';
+import { ESTADOS_BRASILEIROS, CULTURAS_COMUNS } from '../../../constants';
 import {
   FormContainer,
   FormCard,
@@ -13,13 +13,8 @@ import {
   FormGroup,
   Label,
   Input,
-  Select,
   ErrorMessage,
-  DynamicSection,
-  DynamicItem,
-  ButtonContainer,
-  AreaInfo,
-  AreaWarning
+  ButtonContainer
 } from './ProducerForm.styled';
 
 interface ProducerFormProps {
@@ -30,7 +25,7 @@ interface ProducerFormProps {
   isEditMode?: boolean;
 }
 
-const ProducerForm: React.FC<ProducerFormProps> = ({
+export const ProducerForm: React.FC<ProducerFormProps> = ({
   onSubmit,
   onCancel,
   initialData,
@@ -40,15 +35,7 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
   const [formData, setFormData] = useState<ProducerFormData>({
     cpfCnpj: '',
     nomeProdutor: '',
-    nomeFazenda: '',
-    cidade: '',
-    estado: '',
-    areaTotalHectares: '',
-    areaAgricultavelHectares: '',
-    areaVegetacaoHectares: '',
-    safras: [],
-    culturas: [],
-    ...initialData
+    fazendas: []
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -56,465 +43,356 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
   useEffect(() => {
     if (initialData) {
       setFormData({
-        cpfCnpj: '',
-        nomeProdutor: '',
-        nomeFazenda: '',
-        cidade: '',
-        estado: '',
-        areaTotalHectares: '',
-        areaAgricultavelHectares: '',
-        areaVegetacaoHectares: '',
-        safras: [],
-        culturas: [],
-        ...initialData
+        cpfCnpj: initialData.cpfCnpj || '',
+        nomeProdutor: initialData.nomeProdutor || '',
+        fazendas: initialData.fazendas || []
       });
     }
   }, [initialData]);
 
-  const validateCpfCnpj = (value: string): boolean => {
-    const cleanValue = value.replace(/[^\d]/g, '');
-    if (cleanValue.length === 11) {
-      return validateCPF(cleanValue);
-    } else if (cleanValue.length === 14) {
-      return validateCNPJ(cleanValue);
-    }
-    return false;
-  };
-
-  const formatCpfCnpj = (value: string): string => {
-    const cleanValue = value.replace(/[^\d]/g, '');
-    if (cleanValue.length <= 11) {
-      return formatCPF(cleanValue);
-    } else {
-      return formatCNPJ(cleanValue);
-    }
-  };
-
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.cpfCnpj) {
-      newErrors.cpfCnpj = 'CPF ou CNPJ é obrigatório';
-    } else if (!validateCpfCnpj(formData.cpfCnpj)) {
-      newErrors.cpfCnpj = 'CPF ou CNPJ inválido';
+    if (!formData.cpfCnpj.trim()) {
+      newErrors.cpfCnpj = 'CPF/CNPJ é obrigatório';
+    } else {
+      const cleanDoc = formData.cpfCnpj.replace(/\D/g, '');
+      if (cleanDoc.length === 11) {
+        if (!validateCPF(cleanDoc)) {
+          newErrors.cpfCnpj = 'CPF inválido';
+        }
+      } else if (cleanDoc.length === 14) {
+        if (!validateCNPJ(cleanDoc)) {
+          newErrors.cpfCnpj = 'CNPJ inválido';
+        }
+      } else {
+        newErrors.cpfCnpj = 'CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos';
+      }
     }
 
     if (!formData.nomeProdutor.trim()) {
       newErrors.nomeProdutor = 'Nome do produtor é obrigatório';
-    }
-
-    if (!formData.nomeFazenda.trim()) {
-      newErrors.nomeFazenda = 'Nome da fazenda é obrigatório';
-    }
-
-    if (!formData.cidade.trim()) {
-      newErrors.cidade = 'Cidade é obrigatória';
-    }
-
-    if (!formData.estado) {
-      newErrors.estado = 'Estado é obrigatório';
-    }
-
-    const areaTotal = parseFloat(formData.areaTotalHectares);
-    const areaAgricultavel = parseFloat(formData.areaAgricultavelHectares);
-    const areaVegetacao = parseFloat(formData.areaVegetacaoHectares);
-
-    if (!formData.areaTotalHectares || isNaN(areaTotal) || areaTotal <= 0) {
-      newErrors.areaTotalHectares = 'Área total deve ser maior que zero';
-    }
-
-    if (!formData.areaAgricultavelHectares || isNaN(areaAgricultavel) || areaAgricultavel < 0) {
-      newErrors.areaAgricultavelHectares = 'Área agricultável deve ser zero ou maior';
-    }
-
-    if (!formData.areaVegetacaoHectares || isNaN(areaVegetacao) || areaVegetacao < 0) {
-      newErrors.areaVegetacaoHectares = 'Área de vegetação deve ser zero ou maior';
-    }
-
-    if (!isNaN(areaTotal) && !isNaN(areaAgricultavel) && !isNaN(areaVegetacao)) {
-      if (areaAgricultavel + areaVegetacao > areaTotal) {
-        newErrors.areaTotal = 'A soma das áreas agricultável e vegetação não pode exceder a área total';
-      }
+    } else if (formData.nomeProdutor.trim().length < 2) {
+      newErrors.nomeProdutor = 'Nome deve ter pelo menos 2 caracteres';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const getAreaRestante = (): number => {
-    const areaTotal = parseFloat(formData.areaTotalHectares) || 0;
-    const areaAgricultavel = parseFloat(formData.areaAgricultavelHectares) || 0;
-    const areaVegetacao = parseFloat(formData.areaVegetacaoHectares) || 0;
-    return areaTotal - areaAgricultavel - areaVegetacao;
-  };
-
-  const handleInputChange = (field: keyof ProducerFormData, value: string) => {
-    if (field === 'cpfCnpj') {
-      value = formatCpfCnpj(value);
-    }
-
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: ''
-      }));
-    }
-  };
-
-  const handleAddSafra = () => {
-    setFormData(prev => ({
-      ...prev,
-      safras: [...prev.safras, { ano: '', nome: '' }]
-    }));
-  };
-
-  const handleRemoveSafra = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      safras: prev.safras.filter((_, i) => i !== index),
-      culturas: prev.culturas.filter(cultura => cultura.safraAno !== prev.safras[index]?.ano)
-    }));
-  };
-
-  const handleSafraChange = (index: number, field: 'ano' | 'nome', value: string) => {
-    setFormData(prev => {
-      const newSafras = [...prev.safras];
-      const oldAno = newSafras[index]?.ano;
-      newSafras[index] = { ...newSafras[index], [field]: value };
-
-      let newCulturas = prev.culturas;
-      if (field === 'ano' && oldAno !== value) {
-        newCulturas = prev.culturas.map(cultura => 
-          cultura.safraAno === oldAno 
-            ? { ...cultura, safraAno: value }
-            : cultura
-        );
-      }
-
-      return {
-        ...prev,
-        safras: newSafras,
-        culturas: newCulturas
-      };
-    });
-  };
-
-  const handleAddCultura = () => {
-    setFormData(prev => ({
-      ...prev,
-      culturas: [...prev.culturas, { nome: '', safraAno: '' }]
-    }));
-  };
-
-  const handleRemoveCultura = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      culturas: prev.culturas.filter((_, i) => i !== index)
-    }));
-  };
-
-  const handleCulturaChange = (index: number, field: 'nome' | 'safraAno', value: string) => {
-    setFormData(prev => {
-      const newCulturas = [...prev.culturas];
-      newCulturas[index] = { ...newCulturas[index], [field]: value };
-      return {
-        ...prev,
-        culturas: newCulturas
-      };
-    });
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (validateForm()) {
       onSubmit(formData);
     }
   };
 
-  const areaRestante = getAreaRestante();
-  const temErroArea = areaRestante < 0;
+  const handleInputChange = (field: keyof ProducerFormData, value: string) => {
+    let formattedValue = value;
+
+    if (field === 'cpfCnpj') {
+      const cleanValue = value.replace(/\D/g, '');
+      if (cleanValue.length <= 11) {
+        formattedValue = formatCPF(cleanValue);
+      } else {
+        formattedValue = formatCNPJ(cleanValue);
+      }
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [field]: formattedValue
+    }));
+
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleAddFazenda = () => {
+    const newFazenda: FazendaWithSafras = {
+      nomeFazenda: '',
+      cidade: '',
+      estado: '',
+      areaTotalHectares: '',
+      areaAgricultavelHectares: '',
+      areaVegetacaoHectares: '',
+      safras: []
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      fazendas: [...prev.fazendas, newFazenda]
+    }));
+  };
+
+  const handleRemoveFazenda = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      fazendas: prev.fazendas.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleFazendaChange = (fazendaIndex: number, field: keyof Omit<FazendaWithSafras, 'safras'>, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      fazendas: prev.fazendas.map((fazenda, index) => 
+        index === fazendaIndex ? { ...fazenda, [field]: value } : fazenda
+      )
+    }));
+  };
 
   return (
     <FormContainer>
       <FormCard>
-        <FormTitle>Cadastro de Produtor Rural</FormTitle>
-        
+        <FormTitle>
+          {isEditMode ? 'Editar Produtor' : 'Cadastrar Produtor'}
+        </FormTitle>
+
         <form onSubmit={handleSubmit}>
           <FormSection>
             <SectionTitle>Dados do Produtor</SectionTitle>
             
             <FormRow>
               <FormGroup>
-                <Label htmlFor="cpfCnpj">CPF ou CNPJ *</Label>
+                <Label>CPF/CNPJ *</Label>
                 <Input
-                  id="cpfCnpj"
                   type="text"
                   value={formData.cpfCnpj}
                   onChange={(e) => handleInputChange('cpfCnpj', e.target.value)}
                   placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                  className={errors.cpfCnpj ? 'error' : ''}
+                  $hasError={!!errors.cpfCnpj}
                   maxLength={18}
                 />
                 {errors.cpfCnpj && <ErrorMessage>{errors.cpfCnpj}</ErrorMessage>}
               </FormGroup>
 
               <FormGroup>
-                <Label htmlFor="nomeProdutor">Nome do Produtor *</Label>
+                <Label>Nome do Produtor *</Label>
                 <Input
-                  id="nomeProdutor"
                   type="text"
                   value={formData.nomeProdutor}
                   onChange={(e) => handleInputChange('nomeProdutor', e.target.value)}
                   placeholder="Nome completo do produtor"
-                  className={errors.nomeProdutor ? 'error' : ''}
+                  $hasError={!!errors.nomeProdutor}
                 />
                 {errors.nomeProdutor && <ErrorMessage>{errors.nomeProdutor}</ErrorMessage>}
               </FormGroup>
             </FormRow>
+          </FormSection>
 
-            <FormRow>
-              <FormGroup>
-                <Label htmlFor="nomeFazenda">Nome da Fazenda *</Label>
-                <Input
-                  id="nomeFazenda"
-                  type="text"
-                  value={formData.nomeFazenda}
-                  onChange={(e) => handleInputChange('nomeFazenda', e.target.value)}
-                  placeholder="Nome da propriedade"
-                  className={errors.nomeFazenda ? 'error' : ''}
-                />
-                {errors.nomeFazenda && <ErrorMessage>{errors.nomeFazenda}</ErrorMessage>}
-              </FormGroup>
-            </FormRow>
+          <FormSection>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <SectionTitle>Fazendas do Produtor</SectionTitle>
+              <ActionButton
+                type="button"
+                variant="outlined-primary"
+                onClick={handleAddFazenda}
+                disabled={isLoading}
+                size="small"
+              >
+                + Adicionar Fazenda
+              </ActionButton>
+            </div>
 
-            <FormRow>
-              <FormGroup>
-                <Label htmlFor="cidade">Cidade *</Label>
-                <Input
-                  id="cidade"
-                  type="text"
-                  value={formData.cidade}
-                  onChange={(e) => handleInputChange('cidade', e.target.value)}
-                  placeholder="Cidade da propriedade"
-                  className={errors.cidade ? 'error' : ''}
-                />
-                {errors.cidade && <ErrorMessage>{errors.cidade}</ErrorMessage>}
-              </FormGroup>
-
-              <FormGroup>
-                <Label htmlFor="estado">Estado *</Label>
-                <Select
-                  id="estado"
-                  value={formData.estado}
-                  onChange={(e) => handleInputChange('estado', e.target.value)}
-                  className={errors.estado ? 'error' : ''}
+            {formData.fazendas.length === 0 ? (
+              <p style={{ color: '#666', fontStyle: 'italic', textAlign: 'center', padding: '1rem' }}>
+                Nenhuma fazenda adicionada. Clique em "Adicionar Fazenda" para começar.
+              </p>
+            ) : (
+              formData.fazendas.map((fazenda, fazendaIndex) => (
+                <div
+                  key={fazendaIndex}
+                  style={{
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    padding: '1.5rem',
+                    marginBottom: '1rem',
+                    backgroundColor: '#f9f9f9',
+                    position: 'relative'
+                  }}
                 >
-                  <option value="">Selecione o estado</option>
-                  {ESTADOS_BRASILEIROS.map(estado => (
-                    <option key={estado.value} value={estado.value}>
-                      {estado.label}
-                    </option>
-                  ))}
-                </Select>
-                {errors.estado && <ErrorMessage>{errors.estado}</ErrorMessage>}
-              </FormGroup>
-            </FormRow>
-          </FormSection>
-
-          <FormSection>
-            <SectionTitle>Áreas da Propriedade (em hectares)</SectionTitle>
-            
-            <FormRow>
-              <FormGroup>
-                <Label htmlFor="areaTotalHectares">Área Total *</Label>
-                <Input
-                  id="areaTotalHectares"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.areaTotalHectares}
-                  onChange={(e) => handleInputChange('areaTotalHectares', e.target.value)}
-                  placeholder="0.00"
-                  className={errors.areaTotalHectares || errors.areaTotal ? 'error' : ''}
-                />
-                {errors.areaTotalHectares && <ErrorMessage>{errors.areaTotalHectares}</ErrorMessage>}
-              </FormGroup>
-
-              <FormGroup>
-                <Label htmlFor="areaAgricultavelHectares">Área Agricultável *</Label>
-                <Input
-                  id="areaAgricultavelHectares"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.areaAgricultavelHectares}
-                  onChange={(e) => handleInputChange('areaAgricultavelHectares', e.target.value)}
-                  placeholder="0.00"
-                  className={errors.areaAgricultavelHectares || errors.areaTotal ? 'error' : ''}
-                />
-                {errors.areaAgricultavelHectares && <ErrorMessage>{errors.areaAgricultavelHectares}</ErrorMessage>}
-              </FormGroup>
-
-              <FormGroup>
-                <Label htmlFor="areaVegetacaoHectares">Área de Vegetação *</Label>
-                <Input
-                  id="areaVegetacaoHectares"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.areaVegetacaoHectares}
-                  onChange={(e) => handleInputChange('areaVegetacaoHectares', e.target.value)}
-                  placeholder="0.00"
-                  className={errors.areaVegetacaoHectares || errors.areaTotal ? 'error' : ''}
-                />
-                {errors.areaVegetacaoHectares && <ErrorMessage>{errors.areaVegetacaoHectares}</ErrorMessage>}
-              </FormGroup>
-            </FormRow>
-
-            {formData.areaTotalHectares && (
-              <AreaInfo>
-                <strong>Resumo das áreas:</strong><br />
-                Área Total: {parseFloat(formData.areaTotalHectares || '0').toFixed(2)} ha<br />
-                Área Agricultável: {parseFloat(formData.areaAgricultavelHectares || '0').toFixed(2)} ha<br />
-                Área de Vegetação: {parseFloat(formData.areaVegetacaoHectares || '0').toFixed(2)} ha<br />
-                Área Restante: {areaRestante.toFixed(2)} ha
-              </AreaInfo>
-            )}
-
-            {errors.areaTotal && <ErrorMessage>{errors.areaTotal}</ErrorMessage>}
-            {temErroArea && (
-              <AreaWarning>
-                ⚠️ A soma das áreas agricultável e vegetação excede a área total em {Math.abs(areaRestante).toFixed(2)} hectares.
-              </AreaWarning>
-            )}
-          </FormSection>
-
-          <FormSection>
-            <SectionTitle>Safras</SectionTitle>
-            <DynamicSection>
-              {formData.safras.map((safra, index) => (
-                <DynamicItem key={index}>
-                  <FormGroup style={{ flex: 1 }}>
-                    <Label>Ano da Safra</Label>
-                    <Input
-                      type="number"
-                      min="2000"
-                      max="2030"
-                      value={safra.ano}
-                      onChange={(e) => handleSafraChange(index, 'ano', e.target.value)}
-                      placeholder="2023"
-                    />
-                  </FormGroup>
-                  <FormGroup style={{ flex: 2 }}>
-                    <Label>Nome da Safra</Label>
-                    <Input
-                      type="text"
-                      value={safra.nome}
-                      onChange={(e) => handleSafraChange(index, 'nome', e.target.value)}
-                      placeholder="Safra 2023"
-                    />
-                  </FormGroup>
-                  <ActionButton 
-                    variant="outlined-danger" 
-                    size="small"
-                    type="button" 
-                    onClick={() => handleRemoveSafra(index)}
-                  >
-                    Remover
-                  </ActionButton>
-                </DynamicItem>
-              ))}
-              <ActionButton 
-                variant="secondary" 
-                size="small"
-                type="button" 
-                onClick={handleAddSafra}
-              >
-                + Adicionar Safra
-              </ActionButton>
-            </DynamicSection>
-          </FormSection>
-
-          <FormSection>
-            <SectionTitle>Culturas Plantadas</SectionTitle>
-            <DynamicSection>
-              {formData.culturas.map((cultura, index) => (
-                <DynamicItem key={index}>
-                  <FormGroup style={{ flex: 2 }}>
-                    <Label>Cultura</Label>
-                    <Select
-                      value={cultura.nome}
-                      onChange={(e) => handleCulturaChange(index, 'nome', e.target.value)}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h4 style={{ margin: 0, color: '#495057' }}>
+                      Fazenda {fazendaIndex + 1}
+                    </h4>
+                    <ActionButton
+                      type="button"
+                      variant="outlined-danger"
+                      onClick={() => handleRemoveFazenda(fazendaIndex)}
+                      disabled={isLoading}
+                      size="small"
                     >
-                      <option value="">Selecione a cultura</option>
-                      {CULTURAS_COMUNS.map(culturaOption => (
-                        <option key={culturaOption} value={culturaOption}>
-                          {culturaOption}
-                        </option>
-                      ))}
-                      <option value="Outro">Outro</option>
-                    </Select>
-                  </FormGroup>
-                  <FormGroup style={{ flex: 1 }}>
-                    <Label>Ano da Safra</Label>
-                    <Select
-                      value={cultura.safraAno}
-                      onChange={(e) => handleCulturaChange(index, 'safraAno', e.target.value)}
-                    >
-                      <option value="">Selecione a safra</option>
-                      {formData.safras.map(safra => (
-                        <option key={safra.ano} value={safra.ano}>
-                          {safra.nome || safra.ano}
-                        </option>
-                      ))}
-                    </Select>
-                  </FormGroup>
-                  <ActionButton 
-                    variant="outlined-danger" 
-                    size="small"
-                    type="button" 
-                    onClick={() => handleRemoveCultura(index)}
-                  >
-                    Remover
-                  </ActionButton>
-                </DynamicItem>
-              ))}
-              <ActionButton 
-                variant="secondary" 
-                size="small"
-                type="button" 
-                onClick={handleAddCultura}
-              >
-                + Adicionar Cultura
-              </ActionButton>
-              {formData.safras.length === 0 && (
-                <p style={{ color: '#6c757d', fontStyle: 'italic', marginTop: '8px' }}>
-                  Adicione pelo menos uma safra antes de cadastrar culturas.
-                </p>
-              )}
-            </DynamicSection>
+                      Remover Fazenda
+                    </ActionButton>
+                  </div>
+
+                  <FormRow>
+                    <FormGroup>
+                      <Label>Nome da Fazenda *</Label>
+                      <Input
+                        type="text"
+                        value={fazenda.nomeFazenda}
+                        onChange={(e) => handleFazendaChange(fazendaIndex, 'nomeFazenda', e.target.value)}
+                        placeholder="Ex: Fazenda Santa Maria"
+                      />
+                    </FormGroup>
+                  </FormRow>
+
+                  <FormRow>
+                    <FormGroup>
+                      <Label>Cidade *</Label>
+                      <Input
+                        type="text"
+                        value={fazenda.cidade}
+                        onChange={(e) => handleFazendaChange(fazendaIndex, 'cidade', e.target.value)}
+                        placeholder="Ex: Sorriso"
+                      />
+                    </FormGroup>
+                    <FormGroup>
+                      <Label>Estado *</Label>
+                      <select
+                        value={fazenda.estado}
+                        onChange={(e) => handleFazendaChange(fazendaIndex, 'estado', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          border: '1px solid #ced4da',
+                          borderRadius: '4px',
+                          fontSize: '1rem',
+                          backgroundColor: 'white'
+                        }}
+                        required
+                      >
+                        <option value="">Selecione o estado</option>
+                        {ESTADOS_BRASILEIROS.map((estado) => (
+                          <option key={estado.value} value={estado.value}>
+                            {estado.label}
+                          </option>
+                        ))}
+                      </select>
+                    </FormGroup>
+                  </FormRow>
+
+                  <FormRow>
+                    <FormGroup>
+                      <Label>Área Total (ha) *</Label>
+                      <Input
+                        type="number"
+                        value={fazenda.areaTotalHectares}
+                        onChange={(e) => handleFazendaChange(fazendaIndex, 'areaTotalHectares', e.target.value)}
+                        placeholder="0"
+                        min="0"
+                        step="0.01"
+                      />
+                    </FormGroup>
+                    <FormGroup>
+                      <Label>Área Agricultável (ha)</Label>
+                      <Input
+                        type="number"
+                        value={fazenda.areaAgricultavelHectares}
+                        onChange={(e) => handleFazendaChange(fazendaIndex, 'areaAgricultavelHectares', e.target.value)}
+                        placeholder="0"
+                        min="0"
+                        step="0.01"
+                      />
+                    </FormGroup>
+                    <FormGroup>
+                      <Label>Área de Vegetação (ha)</Label>
+                      <Input
+                        type="number"
+                        value={fazenda.areaVegetacaoHectares}
+                        onChange={(e) => handleFazendaChange(fazendaIndex, 'areaVegetacaoHectares', e.target.value)}
+                        placeholder="0"
+                        min="0"
+                        step="0.01"
+                      />
+                    </FormGroup>
+                  </FormRow>
+
+                  <div style={{ marginTop: '1.5rem', padding: '1rem', backgroundColor: 'white', borderRadius: '4px', border: '1px solid #e9ecef' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                      <h5 style={{ margin: 0, color: '#495057' }}>Safras desta Fazenda</h5>
+                      <span style={{ fontSize: '0.9rem', color: '#666', fontStyle: 'italic' }}>
+                        Para editar safras, acesse a página de Propriedades
+                      </span>
+                    </div>
+
+                    {fazenda.safras.length === 0 ? (
+                      <p style={{ color: '#666', fontStyle: 'italic', textAlign: 'center', margin: '0.5rem 0' }}>
+                        Nenhuma safra cadastrada para esta fazenda.
+                      </p>
+                    ) : (
+                      <div style={{ display: 'grid', gap: '0.5rem' }}>
+                        {fazenda.safras.map((safra, safraIndex) => (
+                          <div
+                            key={safraIndex}
+                            style={{
+                              padding: '1rem',
+                              border: '1px solid #dee2e6',
+                              borderRadius: '4px',
+                              backgroundColor: '#f8f9fa'
+                            }}
+                          >
+                            <div style={{ marginBottom: '0.5rem' }}>
+                              <strong style={{ color: '#495057' }}>{safra.nome || `Safra ${safraIndex + 1}`}</strong>
+                              {safra.ano && <span style={{ color: '#666', marginLeft: '0.5rem' }}>- Ano: {safra.ano}</span>}
+                            </div>
+                            
+                            {safra.culturasPlantadas.length > 0 ? (
+                              <div>
+                                <span style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem', display: 'block' }}>
+                                  Culturas:
+                                </span>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                  {safra.culturasPlantadas.map((cultura, culturaIndex) => (
+                                    <span
+                                      key={culturaIndex}
+                                      style={{
+                                        padding: '0.25rem 0.5rem',
+                                        backgroundColor: '#e8f5e8',
+                                        border: '1px solid #4caf50',
+                                        borderRadius: '12px',
+                                        fontSize: '0.8rem',
+                                        color: '#2e7d32'
+                                      }}
+                                    >
+                                      {cultura}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: '0.9rem', color: '#999', fontStyle: 'italic' }}>
+                                Nenhuma cultura cadastrada
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </FormSection>
 
           <ButtonContainer>
-            <ActionButton 
-              type="button" 
-              variant="outlined-danger" 
+            <ActionButton
+              variant="secondary"
               onClick={onCancel}
+              disabled={isLoading}
             >
               Cancelar
             </ActionButton>
-            <ActionButton 
-              type="submit" 
-              variant="primary" 
+            
+            <ActionButton
+              type="submit"
+              variant="primary"
               disabled={isLoading}
-              loading={isLoading}
             >
-              {isEditMode ? 'Atualizar Produtor' : 'Salvar Produtor'}
+              {isLoading ? 'Salvando...' : isEditMode ? 'Atualizar' : 'Cadastrar'}
             </ActionButton>
           </ButtonContainer>
         </form>
@@ -522,5 +400,3 @@ const ProducerForm: React.FC<ProducerFormProps> = ({
     </FormContainer>
   );
 };
-
-export default ProducerForm;

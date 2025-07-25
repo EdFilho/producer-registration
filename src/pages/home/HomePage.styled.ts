@@ -97,7 +97,7 @@ export const ProducersTitle = styled.h2`
 
 export const ProducersList = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: ${theme.spacing.lg};
   margin-top: ${theme.spacing.lg};
 `;
@@ -109,6 +109,9 @@ export const ProducerCard = styled.div`
   padding: ${theme.spacing.lg};
   box-shadow: ${theme.shadows.sm};
   transition: all 0.2s ease-in-out;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     box-shadow: ${theme.shadows.md};
@@ -127,6 +130,8 @@ export const ProducerInfo = styled.div`
   font-size: ${theme.fontSize.sm};
   color: ${theme.colors.text.secondary};
   line-height: 1.4;
+  flex-grow: 1;
+  margin-bottom: ${theme.spacing.md};
 
   p {
     margin: ${theme.spacing.xs} 0;

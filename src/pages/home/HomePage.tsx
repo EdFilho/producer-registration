@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { fetchProducers, deleteProducer } from '../../store/producerSlice';
+import { fetchPropriedades } from '../../store/propriedadeRuralSlice';
 import { ConfirmModal, NotificationModal, ActionButton } from '../../components/shared';
 import {
   HomeContainer,
@@ -31,6 +32,12 @@ const HomePage: React.FC = () => {
   const { producers, loading, error } = useSelector(
     (state: RootState) => state.producers
   );
+  const { propriedades } = useSelector(
+    (state: RootState) => state.propriedades
+  );
+  const { safras } = useSelector(
+    (state: RootState) => state.safras
+  );
 
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -56,6 +63,7 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchProducers());
+    dispatch(fetchPropriedades());
   }, [dispatch]);
 
   const showNotification = (
@@ -107,6 +115,15 @@ const HomePage: React.FC = () => {
     navigate(`/producer-edit/${id}`);
   };
 
+  const getProducerSummary = (produtorId: string) => {
+    const fazendas = propriedades.filter(p => p.produtorId === produtorId);
+
+    return {
+      totalFazendas: fazendas.length,
+      fazendas: fazendas.slice(0, 2)
+    };
+  };
+
   const renderProducers = () => {
     if (loading) {
       return <LoadingMessage>Carregando produtores...</LoadingMessage>;
@@ -122,53 +139,77 @@ const HomePage: React.FC = () => {
 
     return (
       <ProducersList>
-        {producers.map((producer) => (
-          <ProducerCard key={producer.id}>
-            <ProducerName>{producer.nomeProdutor}</ProducerName>
-            <ProducerInfo>
-              <p>
-                <strong>CPF/CNPJ:</strong> {producer.cpfCnpj}
-              </p>
-              <p>
-                <strong>Fazenda:</strong> {producer.nomeFazenda}
-              </p>
-              <p>
-                <strong>Cidade:</strong> {producer.cidade} - {producer.estado}
-              </p>
-              <p>
-                <strong>Área Total:</strong> {producer.areaTotalHectares} ha
-              </p>
-              <p>
-                <strong>Área Agricultável:</strong>{' '}
-                {producer.areaAgricultavelHectares} ha
-              </p>
-              {producer.culturas.length > 0 && (
+        {producers.map((producer) => {
+          const summary = getProducerSummary(producer.id);
+          
+          return (
+            <ProducerCard key={producer.id}>
+              <ProducerName>{producer.nomeProdutor}</ProducerName>
+              <ProducerInfo>
                 <p>
-                  <strong>Culturas:</strong>{' '}
-                  {producer.culturas.map((c) => c.nome).join(', ')}
+                  <strong>CPF/CNPJ:</strong> {producer.cpfCnpj}
                 </p>
-              )}
-            </ProducerInfo>
-            <ProducerActions>
-              <ActionButton
-                variant='secondary'
-                onClick={() => handleEditProducer(producer.id)}
-                disabled={loading}
-              >
-                Editar
-              </ActionButton>
-              <ActionButton
-                variant='outlined-danger'
-                onClick={() =>
-                  handleDeleteProducer(producer.id, producer.nomeProdutor)
-                }
-                disabled={loading}
-              >
-                Deletar
-              </ActionButton>
-            </ProducerActions>
-          </ProducerCard>
-        ))}
+                <p>
+                  <strong>Cadastrado em:</strong>{' '}
+                  {new Date(producer.createdAt).toLocaleDateString('pt-BR')}
+                </p>
+                
+                <div style={{ marginTop: '0.75rem', padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', border: '1px solid #e9ecef' }}>
+                  <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem', fontWeight: 'bold', color: '#495057' }}>
+                    📊 Resumo: {summary.totalFazendas} fazenda{summary.totalFazendas !== 1 ? 's' : ''}
+                  </p>
+                  {summary.fazendas.length > 0 ? (
+                    <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
+                      {summary.fazendas.map((fazenda, index) => (
+                        <div key={fazenda.id} style={{ margin: '0.25rem 0' }}>
+                          🌾 <strong>{fazenda.nomeFazenda}</strong> ({fazenda.cidade}, {fazenda.estado})
+                          <br />
+                          <span style={{ fontSize: '0.8rem', color: '#868e96' }}>
+                            Área: {fazenda.areaTotalHectares} ha • Agricultável: {fazenda.areaAgricultavelHectares} ha
+                          </span>
+                        </div>
+                      ))}
+                      {summary.totalFazendas > 2 && (
+                        <div style={{ fontStyle: 'italic', color: '#868e96', marginTop: '0.25rem' }}>
+                          ... e mais {summary.totalFazendas - 2} fazenda{summary.totalFazendas - 2 !== 1 ? 's' : ''}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '0.85rem', color: '#6c757d', fontStyle: 'italic' }}>
+                      Nenhuma fazenda cadastrada
+                    </div>
+                  )}
+                </div>
+              </ProducerInfo>
+              <ProducerActions>
+                <ActionButton
+                  variant='secondary'
+                  onClick={() => handleEditProducer(producer.id)}
+                  disabled={loading}
+                >
+                  Editar
+                </ActionButton>
+                <ActionButton
+                  variant='primary'
+                  onClick={() => navigate(`/propriedades/${producer.id}`)}
+                  disabled={loading}
+                >
+                  Ver Detalhes
+                </ActionButton>
+                <ActionButton
+                  variant='outlined-danger'
+                  onClick={() =>
+                    handleDeleteProducer(producer.id, producer.nomeProdutor)
+                  }
+                  disabled={loading}
+                >
+                  Deletar
+                </ActionButton>
+              </ProducerActions>
+            </ProducerCard>
+          );
+        })}
       </ProducersList>
     );
   };

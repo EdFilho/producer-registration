@@ -1,4 +1,5 @@
 export * from './producer';
+export * from './propriedadeRural';
 export * from './safra';
 export * from './cultura';
 

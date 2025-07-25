@@ -21,24 +21,6 @@ export const producerService = {
     const producer: Omit<Producer, 'id' | 'createdAt' | 'updatedAt'> = {
       cpfCnpj: producerData.cpfCnpj,
       nomeProdutor: producerData.nomeProdutor,
-      nomeFazenda: producerData.nomeFazenda,
-      cidade: producerData.cidade,
-      estado: producerData.estado,
-      areaTotalHectares: parseFloat(producerData.areaTotalHectares),
-      areaAgricultavelHectares: parseFloat(
-        producerData.areaAgricultavelHectares
-      ),
-      areaVegetacaoHectares: parseFloat(producerData.areaVegetacaoHectares),
-      safras: producerData.safras.map((safra) => ({
-        id: Date.now().toString() + Math.random(),
-        ano: parseInt(safra.ano),
-        nome: safra.nome,
-      })),
-      culturas: producerData.culturas.map((cultura) => ({
-        id: Date.now().toString() + Math.random(),
-        nome: cultura.nome,
-        safraId: cultura.safraAno,
-      })),
     };
 
     const newProducer = {
@@ -52,27 +34,9 @@ export const producerService = {
   },
 
   async update(id: string, producerData: ProducerFormData): Promise<Producer> {
-    const producer: Omit<Producer, 'id' | 'createdAt'> = {
+    const producer = {
       cpfCnpj: producerData.cpfCnpj,
       nomeProdutor: producerData.nomeProdutor,
-      nomeFazenda: producerData.nomeFazenda,
-      cidade: producerData.cidade,
-      estado: producerData.estado,
-      areaTotalHectares: parseFloat(producerData.areaTotalHectares),
-      areaAgricultavelHectares: parseFloat(
-        producerData.areaAgricultavelHectares
-      ),
-      areaVegetacaoHectares: parseFloat(producerData.areaVegetacaoHectares),
-      safras: producerData.safras.map((safra) => ({
-        id: Date.now().toString() + Math.random(),
-        ano: parseInt(safra.ano),
-        nome: safra.nome,
-      })),
-      culturas: producerData.culturas.map((cultura) => ({
-        id: Date.now().toString() + Math.random(),
-        nome: cultura.nome,
-        safraId: cultura.safraAno,
-      })),
       updatedAt: new Date(),
     };
 
@@ -91,7 +55,6 @@ export const producerService = {
       page?: number;
       limit?: number;
       search?: string;
-      estado?: string;
     } = {}
   ): Promise<Producer[]> {
     const searchParams = new URLSearchParams();
@@ -99,7 +62,6 @@ export const producerService = {
     if (params.page) searchParams.append('_page', params.page.toString());
     if (params.limit) searchParams.append('_limit', params.limit.toString());
     if (params.search) searchParams.append('q', params.search);
-    if (params.estado) searchParams.append('estado', params.estado);
 
     const query = searchParams.toString();
     const endpoint = query

@@ -53,9 +53,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
       <NotificationContainer type={type}>
         <NotificationIcon>{getIcon()}</NotificationIcon>
         <NotificationTitle>{title}</NotificationTitle>
-        <NotificationMessage
-          dangerouslySetInnerHTML={{ __html: message }}
-        />
+        <NotificationMessage dangerouslySetInnerHTML={{ __html: message }} />
         <NotificationButton type={type} onClick={onClose}>
           {buttonText}
         </NotificationButton>

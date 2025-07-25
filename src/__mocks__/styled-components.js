@@ -2,7 +2,14 @@ const React = require('react');
 
 const styled = (tag) => (template) => {
   const Component = ({ children, ...otherProps }) => {
-    return React.createElement(tag, otherProps, children);
+    const filteredProps = Object.keys(otherProps).reduce((acc, key) => {
+      if (!key.startsWith('$')) {
+        acc[key] = otherProps[key];
+      }
+      return acc;
+    }, {});
+    
+    return React.createElement(tag, filteredProps, children);
   };
   return Component;
 };

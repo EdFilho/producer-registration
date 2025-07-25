@@ -174,7 +174,14 @@ const getSizeStyles = (size: ActionButtonProps['size']) => {
   }
 };
 
-const StyledButton = styled.button<ActionButtonProps>`
+interface StyledButtonProps {
+  $variant?: ActionButtonProps['variant'];
+  $size?: ActionButtonProps['size'];
+  $loading?: boolean;
+  $fullWidth?: boolean;
+}
+
+const StyledButton = styled.button<StyledButtonProps>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -190,11 +197,11 @@ const StyledButton = styled.button<ActionButtonProps>`
   white-space: nowrap;
   box-shadow: ${theme.shadows.sm};
 
-  ${({ variant }) => getVariantStyles(variant)}
-  ${({ size }) => getSizeStyles(size)}
+  ${({ $variant }) => getVariantStyles($variant)}
+  ${({ $size }) => getSizeStyles($size)}
 
-  ${({ fullWidth }) =>
-    fullWidth &&
+  ${({ $fullWidth }) =>
+    $fullWidth &&
     css`
       width: 100%;
     `}
@@ -211,8 +218,8 @@ const StyledButton = styled.button<ActionButtonProps>`
     box-shadow: none;
   }
 
-  ${({ loading }) =>
-    loading &&
+  ${({ $loading }) =>
+    $loading &&
     css`
       cursor: not-allowed;
       opacity: 0.7;
@@ -237,12 +244,12 @@ const LoadingSpinner = styled.div`
   }
 `;
 
-const ButtonContent = styled.span<{ loading: boolean }>`
+const ButtonContent = styled.span<{ $loading: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  opacity: ${({ loading }) => (loading ? 0 : 1)};
+  opacity: ${({ $loading }) => ($loading ? 0 : 1)};
   transition: opacity 0.2s ease;
 `;
 
@@ -259,15 +266,15 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   return (
     <StyledButton
       className={className}
-      variant={variant}
-      size={size}
-      loading={loading}
-      fullWidth={fullWidth}
+      $variant={variant}
+      $size={size}
+      $loading={loading}
+      $fullWidth={fullWidth}
       disabled={disabled || loading}
       {...buttonProps}
     >
       {loading && <LoadingSpinner />}
-      <ButtonContent loading={loading}>
+      <ButtonContent $loading={loading}>
         {children}
       </ButtonContent>
     </StyledButton>

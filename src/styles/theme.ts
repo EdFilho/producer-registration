@@ -1,43 +1,53 @@
 export const theme = {
   colors: {
-    // Cores primárias do agronegócio
     primary: {
-      main: '#2E7D32', // Verde escuro agro
-      light: '#4CAF50', // Verde médio
-      lighter: '#66BB6A', // Verde claro
-      dark: '#1B5E20', // Verde muito escuro
+      main: '#2E7D32',
+      light: '#4CAF50',
+      lighter: '#66BB6A',
+      dark: '#1B5E20',
     },
     secondary: {
-      main: '#1976D2', // Azul primary
-      light: '#42A5F5', // Azul claro
-      lighter: '#64B5F6', // Azul mais claro
-      dark: '#0D47A1', // Azul escuro
+      main: '#1976D2',
+      light: '#42A5F5',
+      lighter: '#64B5F6',
+      dark: '#0D47A1',
     },
     danger: {
-      main: '#D32F2F', // Vermelho
-      light: '#F44336', // Vermelho claro
-      lighter: '#EF5350', // Vermelho mais claro
-      dark: '#B71C1C', // Vermelho escuro
+      main: '#D32F2F',
+      light: '#F44336',
+      lighter: '#EF5350',
+      dark: '#B71C1C',
     },
     warning: {
-      main: '#F57C00', // Laranja
-      light: '#FF9800', // Laranja claro
-      lighter: '#FFB74D', // Laranja mais claro
-      dark: '#E65100', // Laranja escuro
+      main: '#F57C00',
+      light: '#FF9800',
+      lighter: '#FFB74D',
+      dark: '#E65100',
     },
     success: {
-      main: '#388E3C', // Verde sucesso
-      light: '#4CAF50', // Verde sucesso claro
-      lighter: '#66BB6A', // Verde sucesso mais claro
-      dark: '#2E7D32', // Verde sucesso escuro
+      main: '#388E3C',
+      light: '#4CAF50',
+      lighter: '#66BB6A',
+      dark: '#2E7D32',
     },
     info: {
-      main: '#0288D1', // Azul info
-      light: '#03A9F4', // Azul info claro
-      lighter: '#29B6F6', // Azul info mais claro
-      dark: '#01579B', // Azul info escuro
+      main: '#0288D1',
+      light: '#03A9F4',
+      lighter: '#29B6F6',
+      dark: '#01579B',
     },
-    // Cores neutras
+    neutral: {
+      50: '#FAFAFA',
+      100: '#F5F5F5',
+      200: '#EEEEEE',
+      300: '#E0E0E0',
+      400: '#BDBDBD',
+      500: '#9E9E9E',
+      600: '#757575',
+      700: '#616161',
+      800: '#424242',
+      900: '#212121',
+    },
     grey: {
       50: '#FAFAFA',
       100: '#F5F5F5',
@@ -57,7 +67,7 @@ export const theme = {
       hint: '#9E9E9E',
     },
     background: {
-      default: '#F1F8E9', // Verde muito claro para fundo
+      default: '#F1F8E9',
       paper: '#FFFFFF',
       card: '#FFFFFF',
     },
@@ -94,14 +104,14 @@ export const theme = {
       'source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace',
   },
   fontSize: {
-    xs: '0.75rem', // 12px
-    sm: '0.875rem', // 14px
-    md: '1rem', // 16px
-    lg: '1.125rem', // 18px
-    xl: '1.25rem', // 20px
-    '2xl': '1.5rem', // 24px
-    '3xl': '1.875rem', // 30px
-    '4xl': '2.25rem', // 36px
+    xs: '0.75rem',
+    sm: '0.875rem',
+    md: '1rem',
+    lg: '1.125rem',
+    xl: '1.25rem',
+    '2xl': '1.5rem',
+    '3xl': '1.875rem',
+    '4xl': '2.25rem',
   },
   fontWeight: {
     light: 300,

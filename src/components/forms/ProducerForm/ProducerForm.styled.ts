@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const FormContainer = styled.div`
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
 `;
@@ -53,21 +53,21 @@ export const Label = styled.label`
   font-size: 14px;
 `;
 
-export const Input = styled.input`
+export const Input = styled.input<{ $hasError?: boolean }>`
   padding: 12px;
-  border: 1px solid #ced4da;
+  border: 1px solid ${(props) => (props.$hasError ? '#dc3545' : '#ced4da')};
   border-radius: 4px;
   font-size: 14px;
   transition: border-color 0.3s ease;
 
   &:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-  }
-
-  &.error {
-    border-color: #dc3545;
+    border-color: ${(props) => (props.$hasError ? '#dc3545' : '#007bff')};
+    box-shadow: 0 0 0 2px
+      ${(props) =>
+        props.$hasError
+          ? 'rgba(220, 53, 69, 0.25)'
+          : 'rgba(0, 123, 255, 0.25)'};
   }
 `;
 
