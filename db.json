@@ -1,0 +1,103 @@
+{
+  "producers": [
+    {
+      "id": "1",
+      "cpfCnpj": "123.456.789-00",
+      "nomeProdutor": "João Silva",
+      "nomeFazenda": "Fazenda Boa Vista",
+      "cidade": "Ribeirão Preto",
+      "estado": "SP",
+      "areaTotalHectares": 1000,
+      "areaAgricultavelHectares": 800,
+      "areaVegetacaoHectares": 200,
+      "safras": [
+        {
+          "id": "s1",
+          "ano": 2024,
+          "nome": "Safra 2024"
+        },
+        {
+          "id": "s2",
+          "ano": 2025,
+          "nome": "Safra 2025"
+        }
+      ],
+      "culturas": [
+        {
+          "id": "c1",
+          "nome": "Soja",
+          "safraId": "2024"
+        },
+        {
+          "id": "c2",
+          "nome": "Milho",
+          "safraId": "2024"
+        },
+        {
+          "id": "c3",
+          "nome": "Café",
+          "safraId": "2025"
+        }
+      ],
+      "createdAt": "2025-07-24T10:00:00.000Z",
+      "updatedAt": "2025-07-24T10:00:00.000Z"
+    },
+    {
+      "id": "2",
+      "cpfCnpj": "12.345.678/0001-90",
+      "nomeProdutor": "Maria Santos",
+      "nomeFazenda": "Fazenda Santa Clara",
+      "cidade": "Londrina",
+      "estado": "PR",
+      "areaTotalHectares": 1500,
+      "areaAgricultavelHectares": 1200,
+      "areaVegetacaoHectares": 300,
+      "safras": [
+        {
+          "id": "s3",
+          "ano": 2024,
+          "nome": "Safra 2024"
+        }
+      ],
+      "culturas": [
+        {
+          "id": "c4",
+          "nome": "Soja",
+          "safraId": "2024"
+        },
+        {
+          "id": "c5",
+          "nome": "Trigo",
+          "safraId": "2024"
+        }
+      ],
+      "createdAt": "2025-07-24T11:00:00.000Z",
+      "updatedAt": "2025-07-24T11:00:00.000Z"
+    },
+    {
+      "id": "51c4",
+      "cpfCnpj": "987.654.321-00",
+      "nomeProdutor": "Pedro Costa",
+      "nomeFazenda": "Fazenda Esperança",
+      "cidade": "Campinas",
+      "estado": "SP",
+      "areaTotalHectares": 750,
+      "areaAgricultavelHectares": 600,
+      "areaVegetacaoHectares": 150,
+      "safras": [
+        {
+          "id": "s4",
+          "ano": 2024,
+          "nome": "Safra 2024"
+        }
+      ],
+      "culturas": [
+        {
+          "id": "c6",
+          "nome": "Algodão",
+          "safraId": "2024"
+        }
+      ]
+    }
+  ]
+}
