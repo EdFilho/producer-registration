@@ -27,6 +27,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.2.0",
+    "@mui/x-charts": "^8.9.0",
     "@reduxjs/toolkit": "^2.0.1",
     "@types/react-router-dom": "^5.3.3",
     "react": "^18.2.0",
