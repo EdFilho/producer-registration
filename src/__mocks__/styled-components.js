@@ -25,6 +25,11 @@ styled.p = styled('p');
 styled.section = styled('section');
 styled.span = styled('span');
 styled.a = styled('a');
+styled.label = styled('label');
+styled.input = styled('input');
+styled.select = styled('select');
+styled.textarea = styled('textarea');
+styled.form = styled('form');
 
 module.exports = styled;
 module.exports.createGlobalStyle = styled.createGlobalStyle;

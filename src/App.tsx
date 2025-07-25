@@ -1,14 +1,20 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { store } from './store';
 import GlobalStyleWrapper from './styles/GlobalStyleWrapper';
-import { HomePage } from './pages';
+import { HomePage, ProducerRegisterPage } from './pages';
 
 const App: React.FC = () => {
   return (
     <Provider store={store}>
       <GlobalStyleWrapper />
-      <HomePage />
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/producer-register" element={<ProducerRegisterPage />} />
+        </Routes>
+      </Router>
     </Provider>
   );
 };

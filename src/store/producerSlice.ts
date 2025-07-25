@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Producer } from '@/types';
+import { Producer, ProducerFormData } from '../types/producer';
+import { producerService } from '../services/producerService';
 
 interface ProducerState {
   producers: Producer[];
@@ -19,24 +20,29 @@ const initialState: ProducerState = {
 export const fetchProducers = createAsyncThunk(
   'producers/fetchProducers',
   async () => {
-    // Implementar chamada da API aqui
-    const response = await fetch('/api/producers');
-    return response.json();
+    return await producerService.getAll();
   }
 );
 
 export const createProducer = createAsyncThunk(
   'producers/createProducer',
-  async (producer: Omit<Producer, 'id'>) => {
-    // Implementar chamada da API aqui
-    const response = await fetch('/api/producers', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(producer),
-    });
-    return response.json();
+  async (producerData: ProducerFormData) => {
+    return await producerService.create(producerData);
+  }
+);
+
+export const updateProducer = createAsyncThunk(
+  'producers/updateProducer',
+  async ({ id, data }: { id: string; data: ProducerFormData }) => {
+    return await producerService.update(id, data);
+  }
+);
+
+export const deleteProducer = createAsyncThunk(
+  'producers/deleteProducer',
+  async (id: string) => {
+    await producerService.delete(id);
+    return id;
   }
 );
 
@@ -44,6 +50,9 @@ const producerSlice = createSlice({
   name: 'producers',
   initialState,
   reducers: {
+    addProducer: (state, action: PayloadAction<Producer>) => {
+      state.producers.push(action.payload);
+    },
     setCurrentProducer: (state, action: PayloadAction<Producer | null>) => {
       state.currentProducer = action.payload;
     },
@@ -76,9 +85,41 @@ const producerSlice = createSlice({
       .addCase(createProducer.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Erro ao criar produtor';
+      })
+      .addCase(updateProducer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProducer.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.producers.findIndex(
+          (p) => p.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.producers[index] = action.payload;
+        }
+      })
+      .addCase(updateProducer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Erro ao atualizar produtor';
+      })
+      .addCase(deleteProducer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteProducer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.producers = state.producers.filter(
+          (p) => p.id !== action.payload
+        );
+      })
+      .addCase(deleteProducer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Erro ao deletar produtor';
       });
   },
 });
 
-export const { setCurrentProducer, clearError } = producerSlice.actions;
+export const { addProducer, setCurrentProducer, clearError } =
+  producerSlice.actions;
 export default producerSlice.reducer;

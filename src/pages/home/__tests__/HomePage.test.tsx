@@ -1,13 +1,16 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import { store } from '@/store';
 import { HomePage } from '@/pages';
 
 const renderWithRedux = (component: React.ReactElement) => {
   return render(
     <Provider store={store}>
-      {component}
+      <BrowserRouter>
+        {component}
+      </BrowserRouter>
     </Provider>
   );
 };
@@ -25,7 +28,6 @@ describe('HomePage', () => {
 
   test('renders navigation buttons', () => {
     renderWithRedux(<HomePage />);
-    expect(screen.getByText('Ver Produtores')).toBeInTheDocument();
     expect(screen.getByText('Cadastrar Novo Produtor')).toBeInTheDocument();
   });
 

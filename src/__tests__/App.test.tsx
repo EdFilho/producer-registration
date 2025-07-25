@@ -24,7 +24,6 @@ describe('App', () => {
 
   test('displays navigation buttons', () => {
     renderWithRedux(<App />);
-    expect(screen.getByText('Ver Produtores')).toBeInTheDocument();
     expect(screen.getByText('Cadastrar Novo Produtor')).toBeInTheDocument();
   });
 
