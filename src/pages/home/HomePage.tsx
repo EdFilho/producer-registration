@@ -5,7 +5,11 @@ import { AppDispatch, RootState } from '../../store';
 import { fetchProducers, deleteProducer } from '../../store/producerSlice';
 import { fetchPropriedades } from '../../store/propriedadeRuralSlice';
 import { fetchSafras } from '../../store/safraSlice';
-import { ConfirmModal, NotificationModal, ActionButton } from '../../components/shared';
+import {
+  ConfirmModal,
+  NotificationModal,
+  ActionButton,
+} from '../../components/shared';
 import { PieChart } from '@mui/x-charts/PieChart';
 import {
   HomeContainer,
@@ -37,9 +41,7 @@ const HomePage: React.FC = () => {
   const { propriedades } = useSelector(
     (state: RootState) => state.propriedades
   );
-  const { safras } = useSelector(
-    (state: RootState) => state.safras
-  );
+  const { safras } = useSelector((state: RootState) => state.safras);
 
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -119,15 +121,14 @@ const HomePage: React.FC = () => {
   };
 
   const getProducerSummary = (produtorId: string) => {
-    const fazendas = propriedades.filter(p => p.produtorId === produtorId);
+    const fazendas = propriedades.filter((p) => p.produtorId === produtorId);
 
     return {
       totalFazendas: fazendas.length,
-      fazendas: fazendas.slice(0, 2)
+      fazendas: fazendas.slice(0, 2),
     };
   };
 
-  // Dados para gráfico de pizza por estado
   const getEstadosData = () => {
     const estadosCount = propriedades.reduce((acc, prop) => {
       acc[prop.estado] = (acc[prop.estado] || 0) + 1;
@@ -141,16 +142,14 @@ const HomePage: React.FC = () => {
     }));
   };
 
-  // Dados para gráfico de pizza por cultura plantada
   const getCulturasData = () => {
     const culturasCount = safras.reduce((acc, safra) => {
-      safra.culturasPlantadas.forEach(cultura => {
+      safra.culturasPlantadas.forEach((cultura) => {
         acc[cultura] = (acc[cultura] || 0) + 1;
       });
       return acc;
     }, {} as Record<string, number>);
 
-    // Filtrar apenas culturas que têm pelo menos 1 ocorrência
     return Object.entries(culturasCount)
       .filter(([_, count]) => count > 0)
       .map(([cultura, count], index) => ({
@@ -160,10 +159,15 @@ const HomePage: React.FC = () => {
       }));
   };
 
-  // Dados para gráfico de pizza por uso do solo
   const getUsoSoloData = () => {
-    const totalAgricultavel = propriedades.reduce((total, prop) => total + prop.areaAgricultavelHectares, 0);
-    const totalVegetacao = propriedades.reduce((total, prop) => total + prop.areaVegetacaoHectares, 0);
+    const totalAgricultavel = propriedades.reduce(
+      (total, prop) => total + prop.areaAgricultavelHectares,
+      0
+    );
+    const totalVegetacao = propriedades.reduce(
+      (total, prop) => total + prop.areaVegetacaoHectares,
+      0
+    );
 
     return [
       {
@@ -196,7 +200,7 @@ const HomePage: React.FC = () => {
       <ProducersList>
         {producers.map((producer) => {
           const summary = getProducerSummary(producer.id);
-          
+
           return (
             <ProducerCard key={producer.id}>
               <ProducerName>{producer.nomeProdutor}</ProducerName>
@@ -208,30 +212,63 @@ const HomePage: React.FC = () => {
                   <strong>Cadastrado em:</strong>{' '}
                   {new Date(producer.createdAt).toLocaleDateString('pt-BR')}
                 </p>
-                
-                <div style={{ marginTop: '0.75rem', padding: '0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px', border: '1px solid #e9ecef' }}>
-                  <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem', fontWeight: 'bold', color: '#495057' }}>
-                    📊 Resumo: {summary.totalFazendas} fazenda{summary.totalFazendas !== 1 ? 's' : ''}
+
+                <div
+                  style={{
+                    marginTop: '0.75rem',
+                    padding: '0.5rem',
+                    backgroundColor: '#f8f9fa',
+                    borderRadius: '4px',
+                    border: '1px solid #e9ecef',
+                  }}
+                >
+                  <p
+                    style={{
+                      margin: '0 0 0.25rem 0',
+                      fontSize: '0.9rem',
+                      fontWeight: 'bold',
+                      color: '#495057',
+                    }}
+                  >
+                    📊 Resumo: {summary.totalFazendas} fazenda
+                    {summary.totalFazendas !== 1 ? 's' : ''}
                   </p>
                   {summary.fazendas.length > 0 ? (
                     <div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
                       {summary.fazendas.map((fazenda, index) => (
                         <div key={fazenda.id} style={{ margin: '0.25rem 0' }}>
-                          🌾 <strong>{fazenda.nomeFazenda}</strong> ({fazenda.cidade}, {fazenda.estado})
+                          🌾 <strong>{fazenda.nomeFazenda}</strong> (
+                          {fazenda.cidade}, {fazenda.estado})
                           <br />
-                          <span style={{ fontSize: '0.8rem', color: '#868e96' }}>
-                            Área: {fazenda.areaTotalHectares} ha • Agricultável: {fazenda.areaAgricultavelHectares} ha
+                          <span
+                            style={{ fontSize: '0.8rem', color: '#868e96' }}
+                          >
+                            Área: {fazenda.areaTotalHectares} ha • Agricultável:{' '}
+                            {fazenda.areaAgricultavelHectares} ha
                           </span>
                         </div>
                       ))}
                       {summary.totalFazendas > 2 && (
-                        <div style={{ fontStyle: 'italic', color: '#868e96', marginTop: '0.25rem' }}>
-                          ... e mais {summary.totalFazendas - 2} fazenda{summary.totalFazendas - 2 !== 1 ? 's' : ''}
+                        <div
+                          style={{
+                            fontStyle: 'italic',
+                            color: '#868e96',
+                            marginTop: '0.25rem',
+                          }}
+                        >
+                          ... e mais {summary.totalFazendas - 2} fazenda
+                          {summary.totalFazendas - 2 !== 1 ? 's' : ''}
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div style={{ fontSize: '0.85rem', color: '#6c757d', fontStyle: 'italic' }}>
+                    <div
+                      style={{
+                        fontSize: '0.85rem',
+                        color: '#6c757d',
+                        fontStyle: 'italic',
+                      }}
+                    >
                       Nenhuma fazenda cadastrada
                     </div>
                   )}
@@ -278,74 +315,113 @@ const HomePage: React.FC = () => {
           </HomeDescription>
 
           <ButtonContainer>
-            <ActionButton variant="primary" onClick={() => navigate('/producer-register')}>
+            <ActionButton
+              variant='primary'
+              onClick={() => navigate('/producer-register')}
+            >
               Cadastrar Novo Produtor
             </ActionButton>
           </ButtonContainer>
 
           <FeaturesSection>
             <FeaturesTitle>Estatísticas do Sistema:</FeaturesTitle>
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-              gap: '1rem', 
-              marginTop: '1rem' 
-            }}>
-              <div style={{
-                padding: '1.5rem',
-                backgroundColor: '#e3f2fd',
-                borderRadius: '8px',
-                border: '1px solid #2196f3',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1976d2' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '1rem',
+                marginTop: '1rem',
+              }}
+            >
+              <div
+                style={{
+                  padding: '1.5rem',
+                  backgroundColor: '#e3f2fd',
+                  borderRadius: '8px',
+                  border: '1px solid #2196f3',
+                  textAlign: 'center',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '2rem',
+                    fontWeight: 'bold',
+                    color: '#1976d2',
+                  }}
+                >
                   {propriedades.length}
                 </div>
-                <div style={{ fontSize: '0.9rem', color: '#424242', marginTop: '0.5rem' }}>
+                <div
+                  style={{
+                    fontSize: '0.9rem',
+                    color: '#424242',
+                    marginTop: '0.5rem',
+                  }}
+                >
                   Total de Fazendas Cadastradas
                 </div>
               </div>
-              
-              <div style={{
-                padding: '1.5rem',
-                backgroundColor: '#e8f5e8',
-                borderRadius: '8px',
-                border: '1px solid #4caf50',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#388e3c' }}>
-                  {propriedades.reduce((total, prop) => total + prop.areaTotalHectares, 0).toLocaleString('pt-BR')}
+
+              <div
+                style={{
+                  padding: '1.5rem',
+                  backgroundColor: '#e8f5e8',
+                  borderRadius: '8px',
+                  border: '1px solid #4caf50',
+                  textAlign: 'center',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '2rem',
+                    fontWeight: 'bold',
+                    color: '#388e3c',
+                  }}
+                >
+                  {propriedades
+                    .reduce((total, prop) => total + prop.areaTotalHectares, 0)
+                    .toLocaleString('pt-BR')}
                 </div>
-                <div style={{ fontSize: '0.9rem', color: '#424242', marginTop: '0.5rem' }}>
+                <div
+                  style={{
+                    fontSize: '0.9rem',
+                    color: '#424242',
+                    marginTop: '0.5rem',
+                  }}
+                >
                   Total de Hectares Registrados
                 </div>
               </div>
             </div>
           </FeaturesSection>
 
-          {/* Seção de Gráficos */}
           <FeaturesSection>
             <FeaturesTitle>Análises Gráficas:</FeaturesTitle>
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-              gap: '2rem', 
-              marginTop: '2rem' 
-            }}>
-              {/* Gráfico por Estado */}
-              <div style={{
-                padding: '1.5rem',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-                border: '1px solid #e0e0e0',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}>
-                <h4 style={{ 
-                  margin: '0 0 1rem 0', 
-                  textAlign: 'center', 
-                  color: '#333',
-                  fontSize: '1.1rem'
-                }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '2rem',
+                marginTop: '2rem',
+              }}
+            >
+              <div
+                style={{
+                  padding: '1.5rem',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                }}
+              >
+                <h4
+                  style={{
+                    margin: '0 0 1rem 0',
+                    textAlign: 'center',
+                    color: '#333',
+                    fontSize: '1.1rem',
+                  }}
+                >
                   Distribuição por Estado
                 </h4>
                 {getEstadosData().length > 0 ? (
@@ -369,33 +445,38 @@ const HomePage: React.FC = () => {
                     }}
                   />
                 ) : (
-                  <div style={{ 
-                    height: '250px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    color: '#666',
-                    fontStyle: 'italic'
-                  }}>
+                  <div
+                    style={{
+                      height: '250px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#666',
+                      fontStyle: 'italic',
+                    }}
+                  >
                     Sem dados para exibir
                   </div>
                 )}
               </div>
 
-              {/* Gráfico por Cultura */}
-              <div style={{
-                padding: '1.5rem',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-                border: '1px solid #e0e0e0',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}>
-                <h4 style={{ 
-                  margin: '0 0 1rem 0', 
-                  textAlign: 'center', 
-                  color: '#333',
-                  fontSize: '1.1rem'
-                }}>
+              <div
+                style={{
+                  padding: '1.5rem',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                }}
+              >
+                <h4
+                  style={{
+                    margin: '0 0 1rem 0',
+                    textAlign: 'center',
+                    color: '#333',
+                    fontSize: '1.1rem',
+                  }}
+                >
                   Culturas Plantadas
                 </h4>
                 {getCulturasData().length > 0 ? (
@@ -419,41 +500,47 @@ const HomePage: React.FC = () => {
                     }}
                   />
                 ) : (
-                  <div style={{ 
-                    height: '250px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    color: '#666',
-                    fontStyle: 'italic'
-                  }}>
+                  <div
+                    style={{
+                      height: '250px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#666',
+                      fontStyle: 'italic',
+                    }}
+                  >
                     Sem dados para exibir
                   </div>
                 )}
               </div>
 
-              {/* Gráfico por Uso do Solo */}
-              <div style={{
-                padding: '1.5rem',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-                border: '1px solid #e0e0e0',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}>
-                <h4 style={{ 
-                  margin: '0 0 1rem 0', 
-                  textAlign: 'center', 
-                  color: '#333',
-                  fontSize: '1.1rem'
-                }}>
+              <div
+                style={{
+                  padding: '1.5rem',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                }}
+              >
+                <h4
+                  style={{
+                    margin: '0 0 1rem 0',
+                    textAlign: 'center',
+                    color: '#333',
+                    fontSize: '1.1rem',
+                  }}
+                >
                   Uso do Solo (Hectares)
                 </h4>
-                {getUsoSoloData().every(item => item.value > 0) ? (
+                {getUsoSoloData().every((item) => item.value > 0) ? (
                   <PieChart
                     series={[
                       {
                         data: getUsoSoloData(),
-                        arcLabel: (item) => `${item.value.toLocaleString('pt-BR')}`,
+                        arcLabel: (item) =>
+                          `${item.value.toLocaleString('pt-BR')}`,
                         arcLabelMinAngle: 45,
                       },
                     ]}
@@ -469,14 +556,16 @@ const HomePage: React.FC = () => {
                     }}
                   />
                 ) : (
-                  <div style={{ 
-                    height: '250px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    color: '#666',
-                    fontStyle: 'italic'
-                  }}>
+                  <div
+                    style={{
+                      height: '250px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#666',
+                      fontStyle: 'italic',
+                    }}
+                  >
                     Sem dados para exibir
                   </div>
                 )}

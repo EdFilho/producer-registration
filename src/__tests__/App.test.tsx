@@ -27,9 +27,18 @@ describe('App', () => {
     expect(screen.getByText('Cadastrar Novo Produtor')).toBeInTheDocument();
   });
 
-  test('displays system features', () => {
+  test('displays system statistics', () => {
     renderWithRedux(<App />);
-    expect(screen.getByText('Funcionalidades do Sistema:')).toBeInTheDocument();
-    expect(screen.getByText(/Cadastro de produtores rurais/)).toBeInTheDocument();
+    expect(screen.getByText('Estatísticas do Sistema:')).toBeInTheDocument();
+    expect(screen.getByText('Total de Fazendas Cadastradas')).toBeInTheDocument();
+    expect(screen.getByText('Total de Hectares Registrados')).toBeInTheDocument();
+  });
+
+  test('displays analytics charts', () => {
+    renderWithRedux(<App />);
+    expect(screen.getByText('Análises Gráficas:')).toBeInTheDocument();
+    expect(screen.getByText('Distribuição por Estado')).toBeInTheDocument();
+    expect(screen.getByText('Culturas Plantadas')).toBeInTheDocument();
+    expect(screen.getByText('Uso do Solo (Hectares)')).toBeInTheDocument();
   });
 });
